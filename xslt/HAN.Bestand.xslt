@@ -30,99 +30,196 @@
          =======================================
     -->
     
-   <!-- In diesem Template wird das Marc-Record erstellt inkl. Leader und Controlfield -->
-    
-    <xsl:template match="marc:record">
-        <record>
-            <leader>
-                <xsl:value-of select="marc:leader/text()"/>
-            </leader>
-            <controlfield tag="001">                
-                <xsl:value-of select="concat('HAN', marc:controlfield[@tag='001']/text())" />
-            </controlfield>  
-            <controlfield tag="008">                
-                <xsl:value-of select="marc:controlfield[@tag='008']/text()" />
-            </controlfield>  
-            <xsl:apply-templates/>
-        </record>  
-    </xsl:template>
-
-    <xsl:template match="marc:datafield">
-        <!--Ist die auskommentierte for-each Schleife hier nötig?
-            <xsl:for-each select="marc:datafield">-->
-        <xsl:choose>
-            <xsl:when test="@tag='090'"/> 
-            <xsl:when test="@tag='091'"/> 
-            <xsl:when test="@tag='092'"/> 
-            <xsl:when test="@tag='593'"/>                    
-            <!--Kann die Sortierform des Entstehungszeitraums in swissbib 
-                aus Feld 008 statt aus 593 geholt werden? -->     
-            <!--<xsl:when test="@tag='596'>Bezug eines Briefes zu Werken der Bernoulli: wohin?</xsl:when>
-            Kommt aber im Bestand-Testset nicht vor-->
-            <!--<xsl:when test="@tag='579'">Rekatalogiserungsgrad: wohin? In Exemplardaten?</xsl:when>-->
-            <xsl:when test="@tag='852'">            
-                <subfield code="b">
-                    <xsl:value-of select="marc:subfield[@code='b']/text()"/>
-                </subfield>
-                <subfield code="c">
-                    <xsl:value-of select="marc:subfield[@code='c']/text()"/>
-                </subfield>
-                <xsl:choose>
-                    <xsl:when test="@ind1='A'">                
-                        <subfield code="d">
-                            <xsl:value-of select="concat('Alternative Signatur: ', marc:subfield[@code='d']/text())" />
-                        </subfield>   
-                    </xsl:when>
-                    <xsl:when test="@ind1='E'">                
-                        <subfield code="d">
-                            <xsl:value-of select="concat('Ehemalige Signatur: ', marc:subfield[@code='d']/text())" />
-                        </subfield>   
-                    </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:value-of select="marc:subfield[@code='d']/text()"/>
-                    </xsl:otherwise>
-                </xsl:choose>  
-                <subfield code="e">
-                    <xsl:value-of select="marc:subfield[@code='e']/text()"/>
-                </subfield>
-                <subfield code="n">
-                    <xsl:value-of select="marc:subfield[@code='a']/text()"/>
-                </subfield>
-                <subfield code="x">
-                    <xsl:value-of select="marc:subfield[@code='x']/text()"/>
-                </subfield>
-                <subfield code="z">
-                    <xsl:value-of select="marc:subfield[@code='z']/text()"/>
-                </subfield>
-            </xsl:when>   
-            <xsl:when test="@tag='901'">
-                <datafield tag="700" ind1=" " ind2=" ">
+   <!-- Template zur Erstellung des Marc-Record -->
+    <xsl:template name="record" match="marc:record">
+        <xsl:for-each select=".">
+            <record>
+                <leader>
+                    <xsl:value-of select="marc:leader/text()"/>
+                </leader>
+                <xsl:for-each select="marc:controlfield">
                     <xsl:choose>
-                        <xsl:when test="@ind1='P'">
-                            <!--Inhalt des Felds 901 $a in der Variable $relname speichern-->
-                            <xsl:variable name="relname" select="marc:subfield[@code='a']/text()"/>  
-                            <subfield code="a">         
-                                <!--Vor dem Komma muss der Name abgeschnitten werden, der
-                                    Nachname wird in $a geschrieben-->
-                                <!--< select="($relname, ',')"/> -->  
-                                <xsl:value-of select="fn:substring-before($relname, ',')"/>
-                            </subfield>       
-                            <subfield code="D">    
-                                <!--Was vor dem Komma kommt, wird abgeschnitten, der
-                                Vorname wird in $D geschrieben-->
-                                <xsl:value-of select="fn:substring-after($relname, ',')"/>                           
-                            </subfield>
-                            <subfield code="4">
-                                <!--Code für Aktenbildner reinschreiben--> 
-                                <xsl:text>cre</xsl:text>
-                            </subfield>
+                        <xsl:when test="@tag='001'">
+                            <controlfield tag="001">
+                                <xsl:value-of select="concat('HAN', .)" />
+                            </controlfield>                    
                         </xsl:when>
-                    </xsl:choose>   
-                </datafield>                                 
+                        <xsl:otherwise>
+                            <xsl:element name="{local-name()}">
+                                <xsl:for-each select="@*">
+                                    <xsl:copy-of select="."/>
+                                    <xsl:value-of select="../text()"/>
+                                </xsl:for-each>                        
+                            </xsl:element>
+                        </xsl:otherwise>
+                    </xsl:choose>            
+                </xsl:for-each>
+                <xsl:apply-templates select="marc:datafield"/>
+            </record>
+        </xsl:for-each>
+    </xsl:template>
+    
+    <!--<xsl:template match="marc:leader">
+        <xsl:element name="{local-name()}">
+            <xsl:value-of select="."/>
+        </xsl:element>  
+        <xsl:call-template name="controlfields"/>
+    </xsl:template>
+    
+    <xsl:template name="controlfields"> 
+        <xsl:for-each select="../marc:controlfield">
+            <xsl:choose>
+                <xsl:when test="@tag='001'">
+                    <controlfield tag="001">
+                        <xsl:value-of select="concat('HAN', .)" />
+                    </controlfield>                    
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:element name="{local-name()}">
+                        <xsl:for-each select="@*">
+                            <xsl:copy-of select="."/>
+                            <xsl:value-of select="../text()"/>
+                        </xsl:for-each>                        
+                    </xsl:element>
+                </xsl:otherwise>
+            </xsl:choose>            
+        </xsl:for-each>
+        <xsl:call-template name="datafield"/>
+    </xsl:template>-->
+    
+    <!--Verarbeitung von Feldern, die gemappt oder gelöscht werden sollen-->
+    <xsl:template match="marc:datafield">
+        <!-- Zu löschende Felder -->
+        <xsl:for-each select="."> 
+            <xsl:choose>
+                <xsl:when test="@tag='090'"/> 
+                <xsl:when test="@tag='091'"/> 
+                <xsl:when test="@tag='092'"/>
+                <!--<xsl:when test="@tag='100'">
+                    <xsl:call-template name="pers_entry"/>
+                </xsl:when>
+                <xsl:when test="@tag='700'">
+                    <xsl:call-template name="pers_entry"/>
+                </xsl:when>-->
+                <xsl:when test="@tag='541'"/>  
+                <xsl:when test="@tag='593'"/>  
+                <xsl:when test="@tag='CAT'"/>  
+                <!--<xsl:when test="@tag='852'">
+                    <xsl:call-template name="HOL"/>
+                </xsl:when>-->
+                <!--<xsl:when test="@tag='800'">
+                   <!-\- or '901' or '902' or '903'"-\->
+                    <xsl:call-template name="pers_entry_spfield"/>
+                </xsl:when>-->
+                <!--<xsl:when test="@tag='901'">
+                    <!-\- or '901' or '902' or '903'"-\->
+                    <xsl:call-template name="pers_entry_spfield"/>
+                </xsl:when>-->
+                <!--Evtl. eigenes Template erstellen für Nonbooks?-->
+                <!--<xsl:when test="@tag='906' or '907'">
+                    <xsl:call-template name="format"></xsl:call-template>
+                </xsl:when>-->
+                <xsl:otherwise>
+                    <xsl:call-template name="copy_datafields"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:for-each>
+        <!--<xsl:apply-templates select="../following-sibling::*"/>-->
+       <!-- <xsl:call-template name="record"/>-->
+    </xsl:template>
+    
+    <!--Template für das Kopieren der datafield-Elemente-->
+    <xsl:template name="copy_datafields">  
+        <xsl:for-each select=".">
+            <xsl:element name="{local-name()}">
+                <xsl:for-each select="@*">
+                    <xsl:copy-of select="."/>
+                    <!--<xsl:value-of select="../node()"/>-->
+                </xsl:for-each>
+                <xsl:for-each select="./marc:subfield">
+                    <xsl:element name="{local-name()}">
+                        <xsl:for-each select="@*">
+                            <xsl:copy-of select="."/>
+                            <xsl:value-of select="../text()"/>
+                        </xsl:for-each>                        
+                    </xsl:element>
+                </xsl:for-each>
+            </xsl:element>
+        </xsl:for-each>         
+    </xsl:template>  
+</xsl:stylesheet>
+    
+    <!--To Do: Behandlung von Feldern, die gemappt werden müssen -->
+    <!--<xsl:template name="pers_entry">
+        <!-\-Was soll grundsätzlich mit Personennamen gemacht werden? 
+        Einfügen in 700 oder 100 je nach Fall soll in anderen 
+        Templates geschehen-\->
+        <xsl:variable name="pers_name">
+            <xsl:value-of select="@code='a'"/>
+        </xsl:variable>        
+        <xsl:choose>
+            <!-\-Hat der Name das Muster 'Nachname, Vorname'?-\->            
+            <xsl:when test="fn:contains($pers_name, ',')">
+                <xsl:call-template name="pers_entry_sur"/>
+            </xsl:when>
+            <!-\-Hat der Name das Muster 'Name + Zusatz'?-\->
+            <xsl:when test="./marc:subfield[@code='c']">
+                <xsl:call-template name="pers_entry_spname"/>
+            </xsl:when>                       
+        </xsl:choose>
+    </xsl:template>-->
+           
+             <!-- Folgende Anweisungen können evtl. für alle Eintragungs-Templates 
+            als Vorlage nützlich sein-->
+            <!--<xsl:when test="@ind1='P'">
+                <!-\-Inhalt des Felds 901 $a in der Variable $relname speichern-\->
+                <xsl:variable name="relname" select="marc:subfield[@code='a']/text()"/>  
+                <subfield code="a">         
+                    <!-\-Vor dem Komma muss der Name abgeschnitten werden, der
+                                Nachname wird in $a geschrieben-\->
+                    <!-\-< select="($relname, ',')"/> -\->  
+                    <xsl:value-of select="fn:substring-before($relname, ',')"/>
+                </subfield>       
+                <subfield code="D">    
+                    <!-\-Was vor dem Komma kommt, wird abgeschnitten, der
+                            Vorname wird in $D geschrieben-\->
+                    <xsl:value-of select="fn:substring-after($relname, ',')"/>                           
+                </subfield>
+                <subfield code="4">
+                    <!-\-Code für Aktenbildner reinschreiben-\-> 
+                    <xsl:text>cre</xsl:text>
+                </subfield>
+            </xsl:when>-->
+        
+    
+    <!--Template, das Eintragungen kopiert, aber $a Nachname $D Vorname macht-->
+    <!--<xsl:template name="pers_entry_sur">        
+        <xsl:variable name="pers_name_sur" select="marc:subfield[@code='a']/text()"/>
+        <xsl:value-of select="$pers_name_sur"/>-->
+        <!--Nachname in eine Variable $surname schreiben
+        Vorname in eine Variable $forename schreiben
+        Element (Feld 100, 700) erstellen (@tag übernehmen)
+        $surname in Unterfeld a schreiben
+        $forename in Unterfeld D schreiben-->
+        <!--<xsl:choose>
+            <xsl:when test="@tag=901">
+                <xsl:call-template name="pers_entry_spfield"/>
             </xsl:when>
             <xsl:otherwise>
-                <xsl:copy-of select="."/>
+                <xsl:apply-templates/>
             </xsl:otherwise>
-        </xsl:choose>          
-    </xsl:template>
-</xsl:stylesheet>
+        </xsl:choose>-->
+    <!--</xsl:template>-->
+    
+    <!--Template, das eine Eintragung kopiert, aber $a Name + Zusatz schreibt-->
+    <!--<xsl:template name="pers_entry_spname"></xsl:template>-->
+      
+<!--Template für die Verarbeitung von Feld 852-->
+<!--Alternative bzw. ehemalige Signaturen evtl. in passendes Unterfeld
+packen, ansonsten weglassen-->
+    
+        
+ <!--Template für die Verarbeitung von Feld 901-->
+    <!--<xsl:template name="pers_entry_spfield"></xsl:template> -->
+    
+
