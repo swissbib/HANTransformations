@@ -48,8 +48,8 @@
                             <xsl:element name="{local-name()}">
                                 <xsl:for-each select="@*">
                                     <xsl:copy-of select="."/>
-                                    <xsl:value-of select="../text()"/>
-                                </xsl:for-each>                        
+                                    <xsl:value-of select="../text()"/>                                    
+                                </xsl:for-each> 
                             </xsl:element>
                         </xsl:otherwise>
                     </xsl:choose>            
@@ -61,7 +61,7 @@
     
     
     <!--Verarbeitung von Feldern, die gemappt oder gelöscht werden sollen-->
-    <xsl:template match="marc:datafield">
+    <xsl:template match="marc:datafield" name="datafield">
         <!-- Zu löschende Felder -->
         <xsl:for-each select="."> 
             <xsl:choose>
@@ -70,20 +70,25 @@
                 <xsl:when test="@tag='092'"/>
                 <xsl:when test="@tag='100' or @tag='700'">
                     <xsl:call-template name="pers_entry"/>
-                </xsl:when>               
+                </xsl:when>
+                <xsl:when test="@tag='351' and marc:subfield[@code='c']/text() != 'Dokument=Item=Pièce'">
+                    <xsl:call-template name="format"/>
+                </xsl:when>
                 <xsl:when test="@tag='541'"/>  
                 <xsl:when test="@tag='593'"/>  
                 <xsl:when test="@tag='CAT'"/>  
                 <xsl:when test="@tag='852'">
                     <xsl:call-template name="HOL"/>
                 </xsl:when>
-                <xsl:when test="@tag='901'">                    
+                <xsl:when test="@tag='901' or @tag='903'">                    
                     <xsl:call-template name="pers_entry_spfield"/>
                 </xsl:when>
-                <!--Evtl. eigenes Template erstellen für Nonbooks?-->
-                <!--<xsl:when test="@tag='906' or '907'">
-                    <xsl:call-template name="format"></xsl:call-template>
-                </xsl:when>-->
+                <xsl:when test="@tag='902'">
+                    <xsl:call-template name="corp_entry_spfield"/>
+                </xsl:when>
+                <xsl:when test="@tag='906' or @tag='907'">
+                    <xsl:call-template name="format"/>
+                </xsl:when>
                 <xsl:otherwise>
                     <xsl:call-template name="copy_datafields"/>
                 </xsl:otherwise>
@@ -102,7 +107,7 @@
                         <xsl:for-each select="@*">
                             <xsl:copy-of select="."/>
                             <xsl:value-of select="../text()"/>
-                        </xsl:for-each>                        
+                        </xsl:for-each>      
                     </xsl:element>
                 </xsl:for-each>
             </xsl:element>
@@ -181,7 +186,7 @@
         </xsl:element>
     </xsl:template>
     
-    <!--Template für die Verarbeitung von Feld 901-->
+    <!--Template für die Verarbeitung von Feld 901 und 903-->
     <!--Enthält vorläufig redundanten Code, der in anderen pers_entry-Templates
     auch vorkommt, weil sonst die Navigation zwischen den Templates zu komplex wird-->
     <xsl:template name="pers_entry_spfield">
@@ -214,7 +219,7 @@
                     <subfield code="a">
                         <xsl:value-of select="concat($single_name, ' ', $add_name)"/>
                     </subfield>
-                    <xsl:for-each select="marc:subfield[(@code != 'a') or (@code != 'c')]">
+                    <xsl:for-each select="marc:subfield[@code != 'a' and @code != 'c']">
                         <xsl:element name="{local-name()}">
                             <xsl:for-each select="@*">
                                 <xsl:copy-of select="."/>
@@ -226,6 +231,9 @@
             </xsl:choose>
             <subfield code="4">
                 <xsl:choose>
+                    <xsl:when test="@tag='903'">
+                        <xsl:text>crp</xsl:text>
+                    </xsl:when>
                     <xsl:when test="@ind1='1'">
                         <xsl:text>bnd</xsl:text>
                         <!--Laut CBS-Transformationsskript kommt bnd
@@ -275,25 +283,126 @@
         </datafield>
     </xsl:template>
     
+    <xsl:template name="corp_entry_spfield">
+        <datafield tag="710" ind1=" " ind2=" ">
+            <subfield code="a">
+               <xsl:value-of select="marc:subfield[@code='a']/text()"/>
+            </subfield>
+            <subfield code="4">
+               <xsl:choose>
+                   <xsl:when test="@ind1='1'">
+                       <xsl:text>bnd</xsl:text>
+                   </xsl:when>
+                   <xsl:when test="@ind1='2'">
+                       <xsl:text>bkd</xsl:text>
+                   </xsl:when>
+                   <xsl:when test="@ind1='3'">
+                       <xsl:text>ppm</xsl:text>
+                   </xsl:when>
+                   <xsl:when test="@ind1='4'">
+                       <xsl:text>dte</xsl:text>
+                   </xsl:when>
+                   <xsl:when test="@ind1='5'">
+                       <xsl:text>dto</xsl:text>
+                   </xsl:when>
+                   <xsl:when test="@ind1='6'">
+                       <xsl:text>fmo</xsl:text>
+                   </xsl:when>
+                   <xsl:when test="@ind1='9'">
+                       <xsl:text>rcp</xsl:text>
+                   </xsl:when>
+                   <!--Code für "Atelier" noch ermitteln, nicht in Marc-Liste vorhanden-->
+                   <xsl:when test="@ind1='A'">
+                       <xsl:text>???</xsl:text>
+                   </xsl:when>
+                   <xsl:when test="@ind1='B'">
+                       <xsl:text>cli</xsl:text>
+                   </xsl:when>
+                   <xsl:when test="@ind1='P'">
+                       <xsl:text>cre</xsl:text>
+                   </xsl:when>
+               </xsl:choose> 
+            </subfield>
+        </datafield>
+    </xsl:template>
+    
+    <!--Template. das Format-Feld 898 (Icon- und Facetten-Code) erstellt und aus 906 und 907 je ein Feld 908 macht-->
+   <!-- Wird aufgerufen entweder durch Feld 351$c != 'Dokument=Item=Pièce' oder durch Feld 906-->
+    <xsl:template name="format">
+        <datafield tag="898" ind1=" " ind2=" ">
+            <xsl:choose>
+                <xsl:when test="@tag='906'">                    
+                    <xsl:variable name="format_main" select="marc:subfield/text()"/>
+                    <xsl:variable name="format_side" select="../marc:datafield[@tag='907']/marc:subfield/text()"/>
+                    <xsl:choose>
+                        <xsl:when test="$format_main='Briefe = Correspondance' and $format_side='CF Elektron. Daten Fernzugriff=Fichier online'">
+                            <!--Stimmen die folgenden Codes?-->
+                            <subfield code="a">
+                                <xsl:text>BK030153</xsl:text>
+                            </subfield>
+                            <subfield code="b">
+                                <xsl:text>BK030100</xsl:text>
+                            </subfield>
+                        </xsl:when>
+                       <!-- Hier müssten noch für alle anderen möglichen Formate in 906 die Codes definiert werden-->
+                        <xsl:otherwise/>
+                    </xsl:choose>                     
+                </xsl:when>
+                <xsl:when test="@tag='351'">
+                    <xsl:choose>
+                        <xsl:when test="marc:subfield[@code='c']/text()='Bestand=Fonds'">
+                            <subfield code="a">
+                               <!-- "Sammlung (Brief) (online)": korrekt?-->
+                                <xsl:text>CL010153</xsl:text>
+                            </subfield>
+                            <subfield code="b">
+                                <!--"Sammlung": korrekt?-->
+                                <xsl:text>CL010000 </xsl:text>
+                            </subfield>
+                        </xsl:when>
+                        <!--Hier müssten noch alle anderen möglichen Werte von 351$c codiert werden, 
+                            die Format-Icon und -Facette bestimmen-->
+                        <xsl:otherwise/>
+                    </xsl:choose>
+                </xsl:when>
+                <xsl:otherwise/>
+            </xsl:choose>  
+            <xsl:choose>
+                <xsl:when test="@tag='906'">
+                    <xsl:call-template name="format_908"/>
+                </xsl:when>
+                <xsl:otherwise/>
+            </xsl:choose>
+        </datafield>
+    </xsl:template>
+    
+    <xsl:template name="format_908">
+        <datafield tag="908" ind1=" " ind2=" ">
+            <subfield code="D">
+                <xsl:choose>
+                    <xsl:when test="@tag='906'">
+                        <xsl:text>1</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="@tag='907'">
+                        <xsl:text>2</xsl:text>
+                    </xsl:when>
+                </xsl:choose>
+            </subfield>
+            <subfield>
+                <xsl:for-each select="marc:subfield/@*">
+                    <xsl:copy-of select="."/>
+                    <xsl:value-of select="../text()"/>
+                </xsl:for-each>
+            </subfield>            
+        </datafield>     
+    </xsl:template>
+    
 <!--Template für die Verarbeitung von Feld 852-->
 <!--Auszugebende Felder noch sortieren
 Mapping noch überprüfen-->
     
     <xsl:template name="HOL">
-        <datafield tag="852" ind1=" " ind2=" ">
-            <xsl:choose>
-                <xsl:when test="@ind1='A'">
-                    <subfield code="z">
-                        <xsl:text>Alternative Signatur</xsl:text>
-                    </subfield>
-                </xsl:when>
-                <xsl:when test="@ind1='E'">
-                    <subfield code="z">
-                        <xsl:text>Ehemalige Signatur</xsl:text>
-                    </subfield>
-                </xsl:when>
-                <xsl:otherwise/>
-            </xsl:choose>            
+        <datafield tag="852" ind1=" " ind2=" ">              
             <xsl:for-each select="marc:subfield">
                 <xsl:choose>
                     <xsl:when test="@code='a'">
@@ -317,6 +426,19 @@ Mapping noch überprüfen-->
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:for-each>
+            <xsl:choose>
+                <xsl:when test="@ind1='A'">
+                    <subfield code="z">
+                        <xsl:text>Alternative Signatur</xsl:text>
+                    </subfield>
+                </xsl:when>
+                <xsl:when test="@ind1='E'">
+                    <subfield code="z">
+                        <xsl:text>Ehemalige Signatur</xsl:text>
+                    </subfield>
+                </xsl:when>
+                <xsl:otherwise/>
+            </xsl:choose>          
         </datafield>
     </xsl:template>
    
