@@ -37,23 +37,12 @@
                 <leader>
                     <xsl:value-of select="marc:leader/text()"/>
                 </leader>
-                <xsl:for-each select="marc:controlfield">
-                    <xsl:choose>
-                        <xsl:when test="@tag='001'">
-                            <controlfield tag="001">
-                                <xsl:value-of select="concat('HAN', .)" />
-                            </controlfield>                    
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:element name="{local-name()}">
-                                <xsl:for-each select="@*">
-                                    <xsl:copy-of select="."/>
-                                    <xsl:value-of select="../text()"/>                                    
-                                </xsl:for-each> 
-                            </xsl:element>
-                        </xsl:otherwise>
-                    </xsl:choose>            
-                </xsl:for-each>
+                <controlfield tag="001">
+                    <xsl:value-of select="concat('HAN', marc:controlfield[@tag='001']/text())"/>
+                </controlfield>
+                <controlfield tag="008">
+                    <xsl:value-of select="marc:controlfield[@tag='001']/text()"/>
+                </controlfield>                
                 <xsl:apply-templates select="marc:datafield"/>
             </record>
         </xsl:for-each>
@@ -61,7 +50,7 @@
     
     
     <!--Verarbeitung von Feldern, die gemappt oder gelöscht werden sollen-->
-    <xsl:template match="marc:datafield" name="datafield">
+    <xsl:template match="marc:datafield">
         <!-- Zu löschende Felder -->
         <xsl:for-each select="."> 
             <xsl:choose>
@@ -70,10 +59,7 @@
                 <xsl:when test="@tag='092'"/>
                 <xsl:when test="@tag='100' or @tag='700'">
                     <xsl:call-template name="pers_entry"/>
-                </xsl:when>
-                <xsl:when test="@tag='351' and marc:subfield[@code='c']/text() != 'Dokument=Item=Pièce'">
-                    <xsl:call-template name="format"/>
-                </xsl:when>
+                </xsl:when>                
                 <xsl:when test="@tag='541'"/>  
                 <xsl:when test="@tag='593'"/>  
                 <xsl:when test="@tag='CAT'"/>  
@@ -86,6 +72,7 @@
                 <xsl:when test="@tag='902'">
                     <xsl:call-template name="corp_entry_spfield"/>
                 </xsl:when>
+                <xsl:when test="@tag='903'"/>
                 <xsl:when test="@tag='906' or @tag='907'">
                     <xsl:call-template name="format"/>
                 </xsl:when>
@@ -398,47 +385,88 @@
     </xsl:template>
     
 <!--Template für die Verarbeitung von Feld 852-->
-<!--Auszugebende Felder noch sortieren
-Mapping noch überprüfen-->
     
     <xsl:template name="HOL">
-        <datafield tag="852" ind1=" " ind2=" ">              
-            <xsl:for-each select="marc:subfield">
+        <xsl:variable name="inst_code" select="marc:subfield[@code='b']/text()"/>
+        <datafield tag="949" ind1=" " ind2=" ">
+            <subfield code="B">
+                <xsl:text>HAN</xsl:text>
+            </subfield>
+            <subfield code='0'>
+                <xsl:value-of select="marc:subfield[@code='b']/text()"/>
+            </subfield>
+           <!-- In die Unterfelder F und b soll der Code für die jeweilige Institution 
+            geschrieben werden (dopelt)-->
+            <subfield code="F">
                 <xsl:choose>
-                    <xsl:when test="@code='a'">
-                        <subfield code="n">
-                            <!--Stimmt $n für Ländercode?-->
-                            <xsl:value-of select=".[@code='a']/text()"/>
-                        </subfield>
+                    <xsl:when test="$inst_code='Basel UB'">
+                        <xsl:text>A100</xsl:text>                      
                     </xsl:when>
-                    <xsl:when test="@code='d'">
-                        <subfield code="j">
-                            <xsl:value-of select=".[@code='d']/text()"/>
-                        </subfield>
+                    <xsl:when test="$inst_code='Basel UB Wirtschaft - SWA'">
+                        <xsl:text>HAN001</xsl:text>
                     </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:element name="{local-name()}">
-                            <xsl:for-each select="@*">
-                                <xsl:copy-of select="."/>
-                                <xsl:value-of select="../text()"/>
-                            </xsl:for-each>                        
-                        </xsl:element>
-                    </xsl:otherwise>
+                    <xsl:when test="$inst_code='Bern Gosteli Archiv'">
+                        <xsl:text>HAN002</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$inst_code='Bern UB Medizingeschichte: Rorschach-Archiv'">
+                        <xsl:text>HAN003</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$inst_code='Luzern ZHB'">
+                        <xsl:text>HAN004</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$inst_code='KB Appenzell Ausserrhoden'">
+                        <xsl:text>HAN005</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise/>
                 </xsl:choose>
-            </xsl:for-each>
-            <xsl:choose>
-                <xsl:when test="@ind1='A'">
-                    <subfield code="z">
-                        <xsl:text>Alternative Signatur</xsl:text>
-                    </subfield>
-                </xsl:when>
-                <xsl:when test="@ind1='E'">
-                    <subfield code="z">
-                        <xsl:text>Ehemalige Signatur</xsl:text>
-                    </subfield>
-                </xsl:when>
-                <xsl:otherwise/>
-            </xsl:choose>          
+            </subfield>
+            <subfield code="b">
+                <xsl:choose>
+                    <xsl:when test="$inst_code='Basel UB'">
+                        <xsl:text>A100</xsl:text>                      
+                    </xsl:when>
+                    <xsl:when test="$inst_code='Basel UB Wirtschaft - SWA'">
+                        <xsl:text>HAN001</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$inst_code='Bern Gosteli Archiv'">
+                        <xsl:text>HAN002</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$inst_code='Bern UB Medizingeschichte: Rorschach-Archiv'">
+                        <xsl:text>HAN003</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$inst_code='Luzern ZHB'">
+                        <xsl:text>HAN004</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$inst_code='KB Appenzell Ausserrhoden'">
+                        <xsl:text>HAN005</xsl:text>
+                    </xsl:when>
+                    <xsl:otherwise/>
+                </xsl:choose>
+            </subfield>
+            <subfield code="E">
+                <xsl:value-of select="../marc:controlfield[@tag='001']/text()"/>
+            </subfield>
+            <subfield code="1">
+                <xsl:value-of select="marc:subfield[@code='c']/text()"/>
+            </subfield>
+            <subfield code="j">
+                <xsl:value-of select="marc:subfield[@code='d']/text()"/>
+            </subfield>
+            <xsl:if test="marc:subfield[@code='e']">
+                <subfield code="z">
+                    <xsl:value-of select="marc:subfield[@code='e']/text()"/>
+                </subfield>
+            </xsl:if>
+            <xsl:if test="marc:subfield[@code='z']">
+                <subfield code='z'>
+                    <xsl:value-of select="marc:subfield[@code='z']/text()"/>
+                </subfield>
+            </xsl:if>
+            <xsl:if test="../marc:datafield[@tag='506']">
+                <subfield code='z'>
+                    <xsl:value-of select="../marc:datafield[@tag='506']/marc:subfield[@code='a']/text()"/>
+                </subfield>
+            </xsl:if>            
         </datafield>
     </xsl:template>
    
