@@ -64,7 +64,12 @@
                 <xsl:when test="@tag='593'"/>  
                 <xsl:when test="@tag='CAT'"/>  
                 <xsl:when test="@tag='852'">
-                    <xsl:call-template name="HOL"/>
+                    <xsl:choose>
+                        <xsl:when test="@ind1='A' or @ind1='E'"/>
+                        <xsl:otherwise>
+                            <xsl:call-template name="HOL"/>
+                        </xsl:otherwise>
+                    </xsl:choose>
                 </xsl:when>
                 <xsl:when test="@tag='901' or @tag='903'">                    
                     <xsl:call-template name="pers_entry_spfield"/>
@@ -452,6 +457,12 @@
             <subfield code="j">
                 <xsl:value-of select="marc:subfield[@code='d']/text()"/>
             </subfield>
+            <!--Alternativsignatur kommt in Unterfeld s für "Signatur 2"-->
+            <xsl:if test="../marc:datafield[@tag='852' and @ind1='A']">
+                <subfield code='s'>
+                    <xsl:value-of select="../marc:datafield[@tag='852' and @ind1='A']/marc:subfield[@code='d']/text()"/>
+                </subfield>
+            </xsl:if>
             <xsl:if test="marc:subfield[@code='e']">
                 <subfield code="z">
                     <xsl:value-of select="marc:subfield[@code='e']/text()"/>
