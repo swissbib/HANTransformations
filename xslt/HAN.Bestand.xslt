@@ -103,10 +103,8 @@
                     </xsl:element>
                 </xsl:for-each>
             </xsl:element>
-        <!--</xsl:for-each>-->         
     </xsl:template>  
  
-   
     <xsl:template name="pers_entry">
         <!--Was soll grundsätzlich mit Personennamen gemacht werden? 
         Einfügen in 700 oder 100 je nach Fall soll in anderen 
@@ -178,12 +176,13 @@
         </xsl:element>
     </xsl:template>
     
-    <!--Template für die Verarbeitung von Feld 901 und 903-->
+    <!--Template für die Verarbeitung von Feld 901-->
     <!--Enthält vorläufig redundanten Code, der in anderen pers_entry-Templates
     auch vorkommt, weil sonst die Navigation zwischen den Templates zu komplex wird-->
     <xsl:template name="pers_entry_spfield">
-        <datafield tag="700" ind1=" " ind2=" ">
-            <xsl:variable name="pers_name" select="marc:subfield[@code='a']/text()"/>                
+        <xsl:variable name="pers_name" select="marc:subfield[@code='a']/text()"/> 
+        <!--Enstprechung von 901 in swissbibmarc-->
+        <datafield tag="700" ind1=" " ind2=" ">                           
             <xsl:choose>
                 <!--Hat der Name das Muster 'Nachname, Vorname'?-->            
                 <xsl:when test="contains($pers_name, ',')">
@@ -223,14 +222,6 @@
             </xsl:choose>
             <subfield code="4">
                 <xsl:choose>
-                    <xsl:when test="@tag='903'">
-                        <xsl:text>crp</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="@ind1='1'">
-                        <xsl:text>bnd</xsl:text>
-                        <!--Laut CBS-Transformationsskript kommt bnd
-                        nur bei Körperschaften vor-->
-                    </xsl:when>
                     <xsl:when test="@ind1='2'">
                         <xsl:text>scr</xsl:text>
                     </xsl:when>
@@ -247,13 +238,10 @@
                         <xsl:text>fmo</xsl:text>
                     </xsl:when>
                     <xsl:when test="@ind1='7'">
-                        <xsl:text>pra</xsl:text>
-                        <!--Laut CBS-Skript 'dis'-->
+                        <xsl:text>dis</xsl:text>                        
                     </xsl:when>
                     <xsl:when test="@ind1='8'">
-                        <xsl:text>opn</xsl:text>
-                        <!--In Marc-Relatoren-Liste steht 
-                        für 'respondent' 'rsp'-->
+                        <xsl:text>opn</xsl:text>                        
                     </xsl:when>
                     <xsl:when test="@ind1='9'">
                         <xsl:text>rcp</xsl:text>
@@ -269,7 +257,7 @@
                     <xsl:when test="@ind1='P'">
                         <xsl:text>cre</xsl:text>
                     </xsl:when>
-                    <xsl:when test="@ind1=' '"/>
+                    <xsl:otherwise/>
                 </xsl:choose>
             </subfield>
         </datafield>
@@ -318,6 +306,7 @@
         </datafield>
     </xsl:template>
     
+  
     <!--Template. das Format-Feld 898 (Icon- und Facetten-Code) erstellt und aus 906 und 907 je ein Feld 908 macht-->
    <!-- Wird aufgerufen entweder durch Feld 351$c != 'Dokument=Item=Pièce' oder durch Feld 906-->
     <xsl:template name="format">
@@ -479,6 +468,141 @@
                 </subfield>
             </xsl:if>            
         </datafield>
+        
+        <!--An dieser Stelle soll das Template für Feld 950 aufgerufen werden, das es dann im Ausgabe-Record nach
+        Feld 949 kommt-->
+        <xsl:call-template name="copied_info"/>
+    </xsl:template>
+    
+    <!-- Template für die Erstellung der Felder 950-->
+    <!--Dieses Template noch eleganter schreiben, mit Schleife statt Redundanz-->
+    <xsl:template name="copied_info">
+       <xsl:if test="../marc:datafield[@tag='100']">
+            <datafield tag="950" ind1=" " ind2=" ">
+                <subfield code="B">
+                    <xsl:text>HAN</xsl:text>
+                </subfield>
+                <subfield code="P">
+                    <xsl:text>100</xsl:text>
+                </subfield>
+                <subfield code="E">
+                    <xsl:text>--</xsl:text>
+                </subfield>
+                <xsl:for-each select="../marc:datafield[@tag='100']/marc:subfield">
+                    <xsl:element name="{local-name()}">
+                        <xsl:for-each select="@*">
+                            <xsl:copy-of select="."/>
+                            <xsl:value-of select="../text()"/>
+                        </xsl:for-each>      
+                    </xsl:element>
+                </xsl:for-each>
+            </datafield>
+        </xsl:if>
+        <xsl:if test="../marc:datafield[@tag='700']">
+            <datafield tag="950" ind1=" " ind2=" ">
+                <subfield code="B">
+                    <xsl:text>HAN</xsl:text>
+                </subfield>
+                <subfield code="P">
+                    <xsl:text>700</xsl:text>
+                </subfield>
+                <subfield code="E">
+                    <xsl:text>--</xsl:text>
+                </subfield>
+                <xsl:for-each select="../marc:datafield[@tag='700']/marc:subfield">
+                    <xsl:element name="{local-name()}">
+                        <xsl:for-each select="@*">
+                            <xsl:copy-of select="."/>
+                            <xsl:value-of select="../text()"/>
+                        </xsl:for-each>      
+                    </xsl:element>
+                </xsl:for-each>
+            </datafield>
+        </xsl:if>
+        <xsl:if test="../marc:datafield[@tag='490']">
+            <datafield tag="950" ind1=" " ind2=" ">
+                <subfield code="B">
+                    <xsl:text>HAN</xsl:text>
+                </subfield>
+                <subfield code="P">
+                    <xsl:text>490</xsl:text>
+                </subfield>
+                <subfield code="E">
+                    <xsl:text>--</xsl:text>
+                </subfield>
+                <xsl:for-each select="../marc:datafield[@tag='490']/marc:subfield">
+                    <xsl:element name="{local-name()}">
+                        <xsl:for-each select="@*">
+                            <xsl:copy-of select="."/>
+                            <xsl:value-of select="../text()"/>
+                        </xsl:for-each>      
+                    </xsl:element>
+                </xsl:for-each>
+            </datafield>
+        </xsl:if>
+        <xsl:if test="../marc:datafield[@tag='773']">
+            <datafield tag="950" ind1=" " ind2=" ">
+                <subfield code="B">
+                    <xsl:text>HAN</xsl:text>
+                </subfield>
+                <subfield code="P">
+                    <xsl:text>773</xsl:text>
+                </subfield>
+                <subfield code="E">
+                    <xsl:value-of select="concat('-', ../marc:datafield[@tag='773']/@ind2)"/>
+                </subfield>
+                <xsl:for-each select="../marc:datafield[@tag='773']/marc:subfield">
+                    <xsl:element name="{local-name()}">
+                        <xsl:for-each select="@*">
+                            <xsl:copy-of select="."/>
+                            <xsl:value-of select="../text()"/>
+                        </xsl:for-each>      
+                    </xsl:element>
+                </xsl:for-each>
+            </datafield>
+        </xsl:if>
+        <xsl:if test="../marc:datafield[@tag='901']">
+            <datafield tag="950" ind1=" " ind2=" ">
+                <subfield code="B">
+                    <xsl:text>HAN</xsl:text>
+                </subfield>
+                <subfield code="P">
+                    <xsl:text>700</xsl:text>
+                </subfield>
+                <subfield code="E">
+                    <xsl:text>--</xsl:text>
+                </subfield>
+                <xsl:for-each select="../marc:datafield[@tag='901']/marc:subfield">
+                    <xsl:element name="{local-name()}">
+                        <xsl:for-each select="@*">
+                            <xsl:copy-of select="."/>
+                            <xsl:value-of select="../text()"/>
+                        </xsl:for-each>      
+                    </xsl:element>
+                </xsl:for-each>
+            </datafield>
+        </xsl:if>
+        <xsl:if test="../marc:datafield[@tag='902']">
+            <datafield tag="950" ind1=" " ind2=" ">
+                <subfield code="B">
+                    <xsl:text>HAN</xsl:text>
+                </subfield>
+                <subfield code="P">
+                    <xsl:text>710</xsl:text>
+                </subfield>
+                <subfield code="E">
+                    <xsl:text>--</xsl:text>
+                </subfield>
+                <xsl:for-each select="../marc:datafield[@tag='902']/marc:subfield">
+                    <xsl:element name="{local-name()}">
+                        <xsl:for-each select="@*">
+                            <xsl:copy-of select="."/>
+                            <xsl:value-of select="../text()"/>
+                        </xsl:for-each>      
+                    </xsl:element>
+                </xsl:for-each>
+            </datafield>
+        </xsl:if>
     </xsl:template>
    
 </xsl:stylesheet>   
