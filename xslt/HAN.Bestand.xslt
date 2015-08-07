@@ -65,6 +65,9 @@
                         <xsl:call-template name="pers_entry"/> 
                     </xsl:element>                                                        
                 </xsl:when>  
+                <xsl:when test="@tag='245'">
+                    <xsl:call-template name="title"/>
+                </xsl:when>
                 <xsl:when test="@tag='490' or @tag='773'">
                     <xsl:element name="{local-name()}">
                         <xsl:for-each select="@*">
@@ -129,6 +132,47 @@
             </xsl:for-each> 
         </xsl:element>
     </xsl:template>  
+    
+    
+    <!--Template für die Verarbeitung von Feld 245-->
+    <xsl:template name="title">
+        <xsl:variable name="title" select="marc:subfield[@code='a']/text()"/>
+        <datafield tag="245" ind1="0">
+            <xsl:attribute name="ind2">
+                <xsl:choose>
+                    <xsl:when test="starts-with($title, '&lt;')">
+                        <xsl:variable name="nonfiling" 
+                            select="substring-before($title, '&gt;')"/>
+                        <xsl:variable name="length" select="string-length($nonfiling)"/> 
+                        <xsl:choose>
+                            <xsl:when test="contains($title, '&gt; ')">
+                                <xsl:value-of select="$length - 1"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="$length - 2"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:text>0</xsl:text>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:attribute>
+            
+           <!-- Schreiben von Unterfeld a ohne spitze Klammern-->
+            <subfield code="a">
+                <xsl:value-of select="replace($title, '&lt;|&gt;', '')"/>
+            </subfield>
+            <xsl:for-each select="marc:subfield[@code != 'a']">
+                <xsl:element name="{local-name()}">
+                    <xsl:for-each select="@*">
+                        <xsl:copy-of select="."/>
+                        <xsl:value-of select="../text()"/>
+                    </xsl:for-each>      
+                </xsl:element>
+            </xsl:for-each> 
+        </datafield>
+    </xsl:template>
     
    <!--Template für die Erstellung der Felder 
    490 und 773-->
