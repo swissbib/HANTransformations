@@ -70,13 +70,25 @@
                 <xsl:when test="@tag='091'"/> 
                 <xsl:when test="@tag='092'"/>
                 <xsl:when test="matches(@tag, '100|700|901')">
-                    <xsl:element name="{local-name()}">
-                        <xsl:attribute name="tag">
-                            <xsl:value-of select="@tag"/>
-                        </xsl:attribute>
-                        <xsl:call-template name="pers_entry"/> 
-                    </xsl:element>                                                        
-                </xsl:when>  
+                    <xsl:choose>
+                        <xsl:when test="@tag='100'">
+                            <xsl:element name="datafield">
+                                <xsl:attribute name="tag">
+                                    <xsl:value-of select="'100'"/>
+                                </xsl:attribute>
+                                <xsl:call-template name="pers_entry"/> 
+                            </xsl:element>
+                        </xsl:when>
+                        <xsl:otherwise>
+                            <xsl:element name="datafield">
+                                <xsl:attribute name="tag">
+                                    <xsl:value-of select="'700'"/>
+                                </xsl:attribute>
+                                <xsl:call-template name="pers_entry"/> 
+                            </xsl:element>
+                        </xsl:otherwise>                        
+                    </xsl:choose>                    
+                </xsl:when>    
                 <xsl:when test="@tag='245'">
                     <xsl:call-template name="title"/>
                 </xsl:when>
@@ -151,6 +163,7 @@
     <xsl:template name="title">
         <xsl:variable name="title" select="marc:subfield[@code='a']/text()"/>
         <xsl:element name="{local-name()}">
+            <xsl:attribute name="tag" select="'245'"/>
             <xsl:attribute name="ind1" select="'0'"/>
             <xsl:attribute name="ind2">
                 <xsl:choose>
@@ -171,26 +184,27 @@
                         <xsl:text>0</xsl:text>
                     </xsl:otherwise>
                 </xsl:choose>
-            </xsl:attribute>
+            </xsl:attribute>        
+        
+            <!-- Schreiben von Unterfeld a ohne spitze Klammern-->
+            <xsl:for-each select="marc:subfield[@code='a']">
+                <xsl:element name="{local-name()}">
+                    <xsl:attribute name="code" select="'a'"/>
+                    <xsl:value-of select="replace($title, '&lt;|&gt;', '')"/>
+                </xsl:element>
+            </xsl:for-each>
+        
+            <!--Kopieren der anderen Unterfelder-->
+            <xsl:for-each select="marc:subfield[@code != 'a']">
+                <xsl:element name="{local-name()}">
+                    <xsl:for-each select="@*">
+                        <xsl:copy-of select="."/>
+                        <xsl:value-of select="../text()"/>
+                    </xsl:for-each>      
+                </xsl:element>
+            </xsl:for-each>    
+            
         </xsl:element>
-        
-        <!-- Schreiben von Unterfeld a ohne spitze Klammern-->
-        <xsl:for-each select="marc:subfield[@code='a']">
-            <xsl:element name="{local-name()}">
-                <xsl:attribute name="code" select="'a'"/>
-                <xsl:value-of select="replace($title, '&lt;|&gt;', '')"/>
-            </xsl:element>
-        </xsl:for-each>
-        
-        <!--Kopieren der anderen Unterfelder-->
-        <xsl:for-each select="marc:subfield[@code != 'a']">
-            <xsl:element name="{local-name()}">
-                <xsl:for-each select="@*">
-                    <xsl:copy-of select="."/>
-                    <xsl:value-of select="../text()"/>
-                </xsl:for-each>      
-            </xsl:element>
-        </xsl:for-each>    
     </xsl:template>
     
    <!--Template für die Erstellung der Felder 
@@ -262,10 +276,10 @@
             <xsl:when test="$field_number='950'">
                 <!-- Für Feld 950 muss ein Unterfeld E erstellt
                  werden-->
-                <xsl:element name="subfield">
-                    <xsl:attribute name="code" select="'E'"/>
+                <!--<xsl:element name="subfield">
+                    <xsl:attribute name="code" select="'E'"/>-->
                     <xsl:call-template name="copy_ind"/>
-                </xsl:element>                
+                <!--</xsl:element>-->                
             </xsl:when>
             
             <!--Andernfalls hängen die Indikatoren von der Art des Namens ab-->
@@ -581,71 +595,168 @@
     </xsl:template>
     
   
-    <!--<!-\-Template für die Vorbereitung von Feld 898-\->
+    <!--Template für die Vorbereitung von Feld 898-->
     <xsl:template name="format">
-        <xsl:variable name="LDR_06" select="substring(../marc:leader/text(), 6, 1)"/>
-        <xsl:variable name="LDR_07" select="substring(../marc:leader/text(), 7,1)"/>
-        <xsl:variable name="format_main" select="marc:datafield[@tag='906']/text()"/>
-        <xsl:variable name="format_side" select="marc:datafield[@tag='907']/text()"/>
+        <xsl:variable name="LDR_06" select="substring(../marc:leader/text(), 7, 1)"/>
+        <xsl:variable name="LDR_07" select="substring(../marc:leader/text(), 8,1)"/>
+        <xsl:variable name="format_main" select="../marc:datafield[@tag='906']/marc:subfield/text()"/>
+        <xsl:variable name="format_side" select="../marc:datafield[@tag='907']/marc:subfield/text()"/>
         <xsl:choose>
+            
+            <!--Für Manuskripte-->
             <xsl:when test="$LDR_06='t'">
+                <xsl:variable name="spec_1" select="'BK03'"/>
+                <xsl:variable name="generic" select="'XK020000'"/>
+                <!--Code für Buch-->
                 <xsl:choose>
                     <xsl:when test="$format_main='Briefe = Correspondance'">
+                        <xsl:variable name="spec_2" select="'01'"/>
                         <xsl:choose>
                             <xsl:when test="$format_side='CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
                                 <xsl:call-template name="format_898">
-                                    <xsl:with-param name="specific">BK030153</xsl:with-param>
-                                    <xsl:with-param name="generic">XK020000</xsl:with-param>
-                                    <!-\-Buch-\->
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>                                    
                                 </xsl:call-template>
                             </xsl:when>
+                            
+                           <!-- Wenn Brief, aber nicht online-->
                             <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
                                 <xsl:call-template name="format_898">
-                                    <xsl:with-param name="specific">BK030100</xsl:with-param>
-                                    <xsl:with-param name="generic">XK020000</xsl:with-param>
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>                                    
                                 </xsl:call-template>
                             </xsl:otherwise>                   
+                        </xsl:choose>      
+                    </xsl:when>
+                    
+                    <!--Wenn Manuskript, aber kein Brief-->
+                    <xsl:otherwise>
+                        <xsl:variable name="spec_2" select="'00'"/>
+                        <xsl:choose>
+                            
+                            <!--Wenn online-Dokument-->
+                            <xsl:when test="$format_side='CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/> 
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                </xsl:call-template>
+                            </xsl:when>
+                            
+                            <!--Wenn nicht online-->
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>                        
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:when>
+            
+            <!--Für Fotos-->
+            <xsl:when test="$LDR_06='k'">
+                <xsl:variable name="spec_1" select="'VM02'"/>
+                <xsl:choose>
+                    <xsl:when test="$format_main='VM Foto = Photo'">
+                        <xsl:variable name="spec_2" select="'04'"/>
+                        <xsl:variable name="generic" select="'XM020400'"/>
+                        <xsl:choose>
+                            <xsl:when test="$format_side=
+                                'CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                </xsl:call-template>
+                            </xsl:when> 
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                </xsl:call-template>
+                            </xsl:otherwise>
                         </xsl:choose>
                     </xsl:when>
+                    
+                    <!--Für Bildmaterial, das kein Foto ist-->
+                    <xsl:otherwise>
+                        <xsl:variable name="spec_2" select="'00'"/>
+                        <xsl:variable name="generic" select="'XM020000'"/>
+                        <xsl:choose>
+                            
+                            <!--Online-->
+                            <xsl:when test="$format_side='CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>                                
+                                <!--Bildmaterial-->
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                </xsl:call-template>  
+                            </xsl:when>
+                            
+                            <!--Nicht online-->
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                </xsl:call-template>  
+                            </xsl:otherwise>
+                        </xsl:choose>
+                        
+                    </xsl:otherwise>
                 </xsl:choose>
             </xsl:when>
-            <xsl:when test="$LDR_06='p'">
-                <xsl:choose>
-                    <xsl:when test="marc:datafield[@tag='351']/text()='Bestand=Fonds'">
-                        <xsl:call-template name="format_898">
-                            <xsl:with-param name="specific">CL010000</xsl:with-param>
-                            <!-\-'Dossier-\->
-                            <xsl:with-param name="generic">XL010000</xsl:with-param>
-                        </xsl:call-template>
-                    </xsl:when>
-                    <xsl:when test="$format_main='VM Andere Art = Autre forme'">
-                        <xsl:call-template name="format_898">
-                            <xsl:with-param name="specific">VM040000</xsl:with-param>
-                           <!-\- 'Objekt' - korrekt?-\->
-                            <xsl:with-param name="generic">XM030000</xsl:with-param>
-                           <!-\- 'Medienmix'-\->
-                        </xsl:call-template>
-                    </xsl:when>
-                </xsl:choose>
-            </xsl:when>
-            <xsl:otherwise/>
-        </xsl:choose>
-    </xsl:template>-->
+                
+            <!--Für Bestände  -->  
+            <xsl:when test="$LDR_06='p'">                
+                <xsl:variable name="specific" select="'CL010000'"/>
+                <xsl:variable name="generic" select="'XL010000'"/>
+                <xsl:call-template name="format_898">
+                    <xsl:with-param name="specific" select="$specific"/>
+                    <xsl:with-param name="generic" select="$generic"/>                                    
+                </xsl:call-template>
+            </xsl:when>            
+            
+        </xsl:choose>        
+    </xsl:template>
     
     
     <!--Template für die Erstellung des Felds 898-->
-    <!--<xsl:template name="format_898">        
-        <xsl:param name="specific">yyy</xsl:param>
-        <xsl:param name="generic">xxx</xsl:param>
-        <datafield tag="898" ind1=" " ind2=" ">
-            <subfield code="a">
+    <xsl:template name="format_898">        
+        <xsl:param name="specific">xxx</xsl:param>       
+        <xsl:param name="generic">yyy</xsl:param>        
+        <xsl:element name="datafield">
+            <xsl:attribute name="tag">
+                <xsl:text>898</xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="ind1">
+                <xsl:text> </xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="ind2">
+                <xsl:text> </xsl:text>
+            </xsl:attribute>
+            <xsl:element name="subfield">
+                <xsl:attribute name="code">
+                    <xsl:text>a</xsl:text>
+                </xsl:attribute>
                 <xsl:value-of select="$specific"/>
-            </subfield>
-            <subfield code="b">
+            </xsl:element>
+            <xsl:element name="subfield">
+                <xsl:attribute name="code">
+                    <xsl:text>b</xsl:text>
+                </xsl:attribute>
                 <xsl:value-of select="$generic"/>
-            </subfield>
-        </datafield>
-    </xsl:template>-->
+            </xsl:element>
+        </xsl:element>
+        
+    </xsl:template>
     
     
     <xsl:template name="format_908">
@@ -898,7 +1009,7 @@
         </xsl:for-each>
         
         <!--An dieser Stelle soll das Format-Template aufgerufen werden-->
-        <!--<xsl:call-template name="format"/>-->
+        <xsl:call-template name="format"/>
     </xsl:template>
    
 </xsl:stylesheet>   
