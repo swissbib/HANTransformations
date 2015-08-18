@@ -452,8 +452,10 @@
            <xsl:element name="subfield">
                <xsl:attribute name="code" select="'w'"/>
                <xsl:call-template name="systemnr_link"/>
-           </xsl:element>   
+           </xsl:element>              
            
+           <!--Unterfeld $9 momentan nur zu Testzwecken 
+           im Skript - bitte auskommentieren-->
            <!--Zusätzlich soll die Systemnr. in $9
            geschrieben werden für die Abbildung
            der Hierarchie-->
@@ -1204,7 +1206,7 @@
     </xsl:template>
     
     
-<!--Template für die Verarbeitung von Feld 852-->
+<!--Template für die Erstellung von Feld 949 -->
     
     <xsl:template name="HOL">
         <xsl:variable name="inst_code" select="marc:subfield[@code='b']/text()"/>
