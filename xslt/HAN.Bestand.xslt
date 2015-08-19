@@ -81,7 +81,7 @@
                 <xsl:when test="@tag='090'"/> 
                 <xsl:when test="@tag='091'"/> 
                 <xsl:when test="@tag='092'"/>
-                <xsl:when test="matches(@tag, '100|700|901')">
+                <xsl:when test="matches(@tag, '[179]0[01]')">
                     <xsl:choose>
                         <xsl:when test="@tag='100'">
                             <xsl:element name="datafield">
@@ -90,7 +90,7 @@
                                 </xsl:attribute>
                                 <xsl:call-template name="pers_entry"/> 
                             </xsl:element>
-                        </xsl:when>
+                        </xsl:when>                        
                         <xsl:otherwise>
                             <xsl:element name="datafield">
                                 <xsl:attribute name="tag">
@@ -126,7 +126,10 @@
                 <xsl:when test="@tag='541'"/>  
                 <xsl:when test="@tag='583'"/>
                 <xsl:when test="@tag='593'"/>  
-                <xsl:when test="@tag='596'"/>  
+                <xsl:when test="@tag='596'"/> 
+                <xsl:when test="matches(@tag, '6[0159][015]')">
+                    <xsl:call-template name="subject"/>
+                </xsl:when>
                 <xsl:when test="@tag='CAT'"/>
                 <xsl:when test="@tag='852'">
                     <xsl:choose>
@@ -553,7 +556,7 @@
                     <xsl:otherwise>                
                         <xsl:attribute name="ind1">
                             <xsl:text>0</xsl:text>
-                        </xsl:attribute>
+                        </xsl:attribute>                     
                         <xsl:attribute name="ind2">
                             <xsl:text> </xsl:text>
                         </xsl:attribute>
@@ -563,8 +566,7 @@
         </xsl:choose>
                    
         <!--Dann soll der Name je nach Typ in die
-        Unterfelder geschrieben werden-->
-                
+        Unterfelder geschrieben werden-->              
         <xsl:choose>                    
             <!--Nachname, Vorname?-->
             <xsl:when test="contains($pers_name, ',')">
@@ -860,6 +862,66 @@
         <xsl:call-template name="copied_info"/>
     </xsl:template>
     
+    
+    <!--Template für die Verarbeitung von Schlagwort-
+    Feldern-->
+    <xsl:template name="subject">
+        <xsl:element name="datafield">
+            <xsl:attribute name="tag" select="'653'"/>
+            <xsl:attribute name="ind1">
+                <xsl:text> </xsl:text>
+            </xsl:attribute>
+            <xsl:attribute name="ind2">
+                
+                <!--'Type of term or name' im 
+                Indikator 2-->
+                <xsl:choose>
+                    <xsl:when test="@tag='600'">
+                        <xsl:text>1</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="@tag='610'">
+                        <xsl:text>2</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="@tag='611'">
+                        <xsl:text>3</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="@tag='650'">
+                        <xsl:text>0</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="@tag='651'">
+                        <xsl:text>5</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="@tag='655'">
+                        <xsl:text>6</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="@tag='690'">
+                        <xsl:text> </xsl:text>
+                    </xsl:when>
+                </xsl:choose>
+            </xsl:attribute> 
+            
+            <!--Verarbeitung der Unterfelder. Wenn es ausser            
+            $a andere Unterfelder gibt, sollen sie aneinander-
+            gereiht werden-->
+            <xsl:variable name="cont_com">
+                <xsl:for-each select="marc:subfield">
+                    <xsl:value-of select="concat(./text(), ', ')"/>
+                </xsl:for-each>
+            </xsl:variable>
+            
+            <!--Komma hinten abschneiden-->
+            <xsl:variable name="content" select="concat($cont_com, '++')"/>
+            <xsl:variable name="sequence" select="substring-before($content, ', ++')"/>
+            
+            <!--Inhalt in Unterfelds a schreiben-->
+            <xsl:element name="subfield">
+                <xsl:attribute name="code" select="'a'"/>
+                <xsl:value-of select="$sequence"/>
+            </xsl:element>
+            
+        </xsl:element>        
+    </xsl:template>
+   
   
     <!--Template für die Vorbereitung von Feld 898-->
     <xsl:template name="format">
