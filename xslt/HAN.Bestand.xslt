@@ -115,13 +115,8 @@
                 <xsl:when test="@tag='500'">
                     <xsl:call-template name="footnotes"/>
                 </xsl:when>
-                <xsl:when test="@tag='505'">
-                    <xsl:choose>
-                        <xsl:when test="marc:subfield[@code='t']">
-                           <xsl:call-template name="title_505"/> 
-                        </xsl:when>
-                        <xsl:otherwise/>
-                    </xsl:choose>
+                <xsl:when test="@tag='505'">                    
+                   <xsl:call-template name="title_505"/> 
                 </xsl:when>
                 <xsl:when test="@tag='541'"/>  
                 <xsl:when test="@tag='583'"/>
@@ -286,7 +281,7 @@
             <xsl:element name="subfield">
                 <xsl:attribute name="code" select="'a'"/>
                 
-                <!--Für die Spezialindikatoren solle ein Text
+                <!--Für die Spezialindikatoren soll ein Text
                 vor den Feldinhalt gestellt werden-->
                 <xsl:choose>
                     <xsl:when test="@ind1='A'">
@@ -324,8 +319,20 @@
                     <xsl:when test="@ind1='L'">
                         <xsl:choose>
                             <xsl:when test="marc:subfield[@code='b']">
-                                <xsl:value-of select="concat('Einrichtung: ', marc:subfield[@code='a']/text(), 
-                                    ', Schrift: ', marc:subfield[@code='b']/text())"/>
+                                
+                                <!--Wenn der Text in $a mit einem Punkt endet,
+                                muss kein Komma angehängt werden-->
+                                <xsl:choose>
+                                    <xsl:when test="ends-with(marc:subfield[@code='a']/text(), '.')">
+                                        <xsl:value-of select="concat('Einrichtung: ', marc:subfield[@code='a']/text(), 
+                                            ' Schrift: ', marc:subfield[@code='b']/text())"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="concat('Einrichtung: ', marc:subfield[@code='a']/text(), 
+                                            ', Schrift: ', marc:subfield[@code='b']/text())"/>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                                
                             </xsl:when>
                             <xsl:otherwise>
                                 <xsl:value-of select="concat('Einrichtung: ', marc:subfield[@code='a']/text())"/>
@@ -364,42 +371,71 @@
     
     <!--Template für Feld 505-->
     <xsl:template name="title_505">
-        <xsl:variable name="title" select="marc:subfield[@code='t']/text()"/>
-        <xsl:element name="{local-name()}">
-            <xsl:attribute name="tag" select="@tag"/>
-            <xsl:attribute name="ind1" select="'0'"/>
-            <!--'Contents'-->
-            <xsl:attribute name="ind2" select="'0'"/>
-            <!--'Enhanced'-->
-            <!--Indikatoren korrekt?-->           
+        
+        <!--Wenn der Inhalt in $a ist, dann wird er
+        in Feld 520 gepackt-->
+        <xsl:choose>
+            <xsl:when test="marc:subfield[@code='a']">
+                <xsl:element name="datafield">
+                    <xsl:attribute name="tag" select="'520'"/>
+                    <xsl:attribute name="ind1" select="'8'"/>
+                    <!--'No display constant generated' - korrekt?-->
+                    <xsl:attribute name="ind2" select="' '"/>
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'a'"/>
+                        <xsl:value-of select="marc:subfield[@code='a']/text()"/>
+                    </xsl:element>
+                </xsl:element>
+            </xsl:when>
             
-            <!--Schreiben der Unterfelder-->
-            <xsl:for-each select="marc:subfield">
-                <xsl:choose>
+            <!--Andernfalls wird der Inhalt in ein Feld 
+            505 geschrieben. Achtung: Indikatoren
+            richtig setzen und unerlaubte Unterfelder
+            mappen-->
+            <xsl:otherwise>
+                <xsl:variable name="title" select="marc:subfield[@code='t']/text()"/>
+                <xsl:element name="{local-name()}">
+                    <xsl:attribute name="tag" select="@tag"/>
+                    <xsl:attribute name="ind1" select="'0'"/>
+                    <!--'Contents'-->
+                    <xsl:attribute name="ind2" select="'0'"/>
+                    <!--'Enhanced'-->
                     
-                    <!--Bei Unterfeld t sollen die spitzen                    
+                    <!--Schreiben der Unterfelder. Es sollen nur
+                    $g, $t und $r übernommen werden-->                    
+                    <xsl:for-each select="marc:subfield">
+                        <xsl:choose>
+                            <xsl:when test="matches(@code, 'g|t|r|u|6|8')">
+                                <xsl:choose>
+                                    <!--Bei Unterfeld t sollen die spitzen                    
                     Klammern rausgenommen werden.
                     Keine Wegsortierung von Artikeln?-->
-                    <xsl:when test="@code='t'">
-                        <xsl:element name="{local-name()}">
-                            <xsl:attribute name="code" select="'t'"/>
-                            <xsl:value-of select="replace($title, '&lt;|&gt;', '')"/>
-                        </xsl:element>
-                    </xsl:when>
-                    
-                    <!--Die anderen Unterfelder sollen kopiert werden-->
-                    <xsl:otherwise>
-                        <xsl:element name="{local-name()}">
-                            <xsl:for-each select="@*">
-                                <xsl:copy-of select="."/>
-                                <xsl:value-of select="../text()"/>
-                            </xsl:for-each>      
-                        </xsl:element>
-                    </xsl:otherwise>
-                </xsl:choose>
-            </xsl:for-each>
-            
-        </xsl:element>
+                                    <xsl:when test="@code='t'">
+                                        <xsl:element name="{local-name()}">
+                                            <xsl:attribute name="code" select="'t'"/>
+                                            <xsl:value-of select="replace($title, '&lt;|&gt;', '')"/>
+                                        </xsl:element>
+                                    </xsl:when>
+                                    
+                                    <!--Die anderen Marc21-konformen
+                                        Unterfelder sollen kopiert werden-->
+                                    <xsl:otherwise>
+                                        <xsl:element name="{local-name()}">
+                                            <xsl:for-each select="@*">
+                                                <xsl:copy-of select="."/>
+                                                <xsl:value-of select="../text()"/>
+                                            </xsl:for-each>      
+                                        </xsl:element>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:when>
+                            <xsl:otherwise/>
+                        </xsl:choose>
+                    </xsl:for-each>
+                </xsl:element> 
+            </xsl:otherwise>
+        </xsl:choose>
+        
     </xsl:template>
     
     
@@ -623,7 +659,7 @@
         <xsl:param name="field_number">700</xsl:param>
         <xsl:variable name="pers_name_sur" select="marc:subfield[@code='a']/text()"/>
         <xsl:variable name="surname" select="substring-before($pers_name_sur, ',')"/>
-        <xsl:variable name="forename" select="substring-after($pers_name_sur, ',')"/>     
+        <xsl:variable name="forename" select="substring-after($pers_name_sur, ', ')"/>     
         <xsl:element name="subfield">
             <xsl:attribute name="code" select="'a'"/>
             <xsl:value-of select="$surname"/>
