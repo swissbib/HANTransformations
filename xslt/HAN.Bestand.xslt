@@ -12,8 +12,9 @@
 
     <!-- ***************************************
          * Template für Bestandsaufnahmen
-         * nicht für Digitalisate verwenden
-         * very basic, erster Entwurf (25.06.2015/osc)
+         * und Digitalisate aus HAN
+         * verarbeitet alle HANMarc-Felder
+         * Version 1 (20.08.2015/awi)
          ***************************************
     -->
     
@@ -21,9 +22,8 @@
         <!-- Inhalt der Template-Regel -->
         <xsl:for-each select="marc:collection">
             <xsl:element name="{local-name()}">
-            <!-- start processing of record nodes -->
-            <!--<xsl:apply-templates/>-->
-            <xsl:apply-templates select="marc:record"/>
+                <!-- start processing of record nodes -->            
+                <xsl:apply-templates select="marc:record"/>
             </xsl:element>
         </xsl:for-each>
     </xsl:template>
@@ -54,29 +54,36 @@
                         <xsl:attribute name="tag" select="'008'"/>
                         <xsl:value-of select="./text()"/>
                     </xsl:element>
-                </xsl:for-each>                
+                </xsl:for-each>
+                
+                <!--Wenn kein Feld 024 existiert, soll an dieser
+                Stelle ein Feld 035 eingefügt werden-->
+                <xsl:if test="not(marc:datafield[@tag='024'])">
+                    <xsl:call-template name="HAN_link">
+                        <xsl:with-param name="focus" select="'record'"/>
+                    </xsl:call-template>    
+                </xsl:if>                            
                 <xsl:apply-templates select="marc:datafield"/>
             </xsl:element>
         </xsl:for-each>
     </xsl:template>
     
     
+    <!-- =======================================
+         Verarbeitung der marc:datafields
+         =======================================
+    -->
+    
     <!--Verarbeitung von Feldern, die gemappt oder gelöscht werden sollen-->
     <xsl:template match="marc:datafield">
         <xsl:for-each select="."> 
-            <xsl:choose>
+            <xsl:choose>   
+                
+                <!--Nach Feld 024 soll Feld 035
+                eingefügt werden-->
                 <xsl:when test="@tag='024'">
-                    <!--Feld 035 hier erstellen, falls 
-                    kein 024 vorhanden-->
-                    <xsl:choose>
-                        <xsl:when test="../marc:datafield[@tag='024']">
-                            <xsl:call-template name="copy_datafields"/>
-                            <xsl:call-template name="HAN_link"/>
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:call-template name="HAN_link"/>
-                        </xsl:otherwise>
-                    </xsl:choose>
+                    <xsl:call-template name="copy_datafields"/>
+                    <xsl:call-template name="HAN_link"/>
                 </xsl:when>
                 <xsl:when test="@tag='090'"/> 
                 <xsl:when test="@tag='091'"/> 
@@ -166,17 +173,28 @@
     
     <!--Template zur Erstellung von Feld 035-->
     <xsl:template name="HAN_link">
+        <xsl:param name="focus" select="'datafield'"/>
         <xsl:element name="datafield">
             <xsl:attribute name="tag" select="'035'"/>
-            <xsl:attribute name="ind1">
-                <xsl:text> </xsl:text>
-            </xsl:attribute>
-            <xsl:attribute name="ind2">
-                <xsl:text> </xsl:text>
-            </xsl:attribute>
+            <xsl:attribute name="ind1" select="' '"/>                
+            <xsl:attribute name="ind2" select="' '"/>                
             <xsl:element name="subfield">
                 <xsl:attribute name="code" select="'a'"/>
-                <xsl:value-of select="concat('(HAN)', ../marc:controlfield[@tag='001']/text())"/>
+                
+                <!--Je nach dem, von wo das Template aufgerufen
+                worden ist, muss ein anderer Pfad angegeben
+                werden-->
+                <xsl:choose>
+                    <xsl:when test="$focus='record'">
+                        <xsl:value-of select="concat('(HAN)', 
+                            marc:controlfield[@tag='001']/text())"/>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:value-of select="concat('(HAN)', 
+                            ../marc:controlfield[@tag='001']/text())"/>
+                    </xsl:otherwise>
+                </xsl:choose>
+                
             </xsl:element>
         </xsl:element>
     </xsl:template>
@@ -1304,7 +1322,8 @@
     </xsl:template>
     
     
-<!--Template für die Erstellung von Feld 949 -->
+<!--Template für die Erstellung von Feld 949
+    (Exemplare)-->
     
     <xsl:template name="HOL">
         <xsl:variable name="inst_code" select="marc:subfield[@code='b']/text()"/>
