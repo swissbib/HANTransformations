@@ -111,11 +111,31 @@
                 <xsl:when test="matches(@tag, '24[05]')">
                     <xsl:call-template name="title"/>
                 </xsl:when>
+                
+                <!--Für Felder 490 und 773 wird in VuFind automatisch
+                ein Link mit der Bezeichung 'Serie / Reihe'
+                bzw. 'Verknüpfte Einträge - enthalten in:'
+                erstellt. Bisher sind aber nicht alle Verzeichnungsstufen
+                von HAN in swissbib, wodurch die Links ins Leere 
+                führen würden bzw. die Anzeige falsch wäre (auch ohne 
+                Systemnr.). Deshalb werden die Felder auf die lokal 
+                definierten Felder 499 und 779 gemappt.-->
                 <xsl:when test="@tag='490' or @tag='773'">
                     <xsl:element name="{local-name()}">
-                        <xsl:for-each select="@*">
-                            <xsl:copy-of select="."/>                    
-                        </xsl:for-each>
+                        <xsl:choose>
+                            <xsl:when test="@tag='490'">
+                                <xsl:attribute name="tag" select="'499'"/>
+                            </xsl:when>
+                            <xsl:when test="@tag='773'">
+                                <xsl:attribute name="tag" select="'779'"/>
+                            </xsl:when>
+                        </xsl:choose>
+                        <xsl:attribute name="ind1">
+                            <xsl:value-of select="@ind1"/>
+                        </xsl:attribute>
+                        <xsl:attribute name="ind2">
+                            <xsl:value-of select="@ind2"/>
+                        </xsl:attribute>
                         <xsl:call-template name="linking_fields"/> 
                     </xsl:element>                    
                 </xsl:when>
@@ -129,6 +149,7 @@
                 <xsl:when test="@tag='583'"/>
                 <xsl:when test="@tag='593'"/>  
                 <xsl:when test="@tag='596'"/> 
+                <xsl:when test="@tag='597'"/> 
                 <xsl:when test="matches(@tag, '6[0159][015]')">
                     <xsl:call-template name="subject"/>
                 </xsl:when>
@@ -309,19 +330,19 @@
                         <xsl:value-of select="concat('Vorbesitzer: ', marc:subfield[@code='a']/text())"/>
                     </xsl:when>
                     <xsl:when test="@ind1='C' and @ind2='A'">
-                        <xsl:value-of select="concat('Beschreibung und Wasserzeichen: ', 
+                        <xsl:value-of select="concat('Wasserzeichen: ', 
                             marc:subfield[@code='a']/text())"/>
                     </xsl:when>
                     <xsl:when test="@ind1='C' and @ind2='B'">
-                        <xsl:value-of select="concat('Lagen und Lagenzählung: ', 
+                        <xsl:value-of select="concat('Lagen: ', 
                             marc:subfield[@code='a']/text())"/>
                     </xsl:when>
                     <xsl:when test="@ind1='C' and @ind2='C'">
-                        <xsl:value-of select="concat('Paginierung, Foliierung bzw. andere Zählung: ', 
+                        <xsl:value-of select="concat('Paginierung: ', 
                             marc:subfield[@code='a']/text())"/>
                     </xsl:when>
                     <xsl:when test="@ind1='D' and @ind2='A'">
-                        <xsl:value-of select="concat('Überschriften / Rubrizierung / Anfangsbuchstaben: ', 
+                        <xsl:value-of select="concat('Überschriften: ', 
                             marc:subfield[@code='a']/text())"/>
                     </xsl:when>
                     <xsl:when test="@ind1='D' and @ind2='B'">
@@ -977,7 +998,7 @@
     </xsl:template>
    
   
-    <!--Template für die Vorbereitung von Feld 898-->
+    <!--Template für die Vorbereitung von Feld 898 (Formatcodierung)-->
     <xsl:template name="format">
         <xsl:variable name="LDR_06" select="substring(../marc:leader/text(), 7, 1)"/>
         <xsl:variable name="LDR_07" select="substring(../marc:leader/text(), 8,1)"/>
@@ -1100,12 +1121,46 @@
                 
             <!--Für Bestände  -->  
             <xsl:when test="$LDR_06='p'">                
-                <xsl:variable name="specific" select="'CL010000'"/>
-                <xsl:variable name="generic" select="'XL010000'"/>
-                <xsl:call-template name="format_898">
-                    <xsl:with-param name="specific" select="$specific"/>
-                    <xsl:with-param name="generic" select="$generic"/>                                    
-                </xsl:call-template>
+                <xsl:variable name="spec_1" select="'CL01'"/>
+                <xsl:choose>
+                    
+                    <!--Wenn Briefsammlung-->
+                    <xsl:when test="$format_main='Briefe = Correspondance'">
+                        <xsl:variable name="spec_2" select="'01'"/>
+                        <xsl:variable name="generic" select="'XK020100'"/>                       
+                        <xsl:choose>
+                            
+                            <!--Wenn online-Briefsammlung-->
+                            <xsl:when test="$format_side=
+                                'CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                </xsl:call-template> 
+                            </xsl:when>
+                            
+                            <!--Wenn Briefsammlung, aber nicht online-->
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>       
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:when>
+                    
+                    <!--Wenn Sammlung, aber keine Briefe-->
+                    <xsl:otherwise>
+                        <xsl:variable name="specific" select="'CL010000'"/>
+                        <xsl:variable name="generic" select="'XL010000'"/>
+                        <xsl:call-template name="format_898">
+                            <xsl:with-param name="specific" select="$specific"/>
+                            <xsl:with-param name="generic" select="$generic"/>       
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>                
             </xsl:when>   
             
             <!--Für Musikmanuskripte-->
@@ -1293,7 +1348,8 @@
         
     </xsl:template>
     
-    
+    <!--Template für die Erstellung des Felds 908
+    (Inhalt aus 906 bzw. 907)-->
     <xsl:template name="format_908">
         <xsl:element name="datafield">
             <xsl:attribute name="tag" select="'908'"/>
@@ -1349,19 +1405,28 @@
                         <xsl:text>A100</xsl:text>                      
                     </xsl:when>
                     <xsl:when test="$inst_code='Basel UB Wirtschaft - SWA'">
-                        <xsl:text>HAN001</xsl:text>
+                        <xsl:text>A125</xsl:text>
                     </xsl:when>
-                    <xsl:when test="$inst_code='Bern Gosteli Archiv'">
-                        <xsl:text>HAN002</xsl:text>
+                    <xsl:when test="$inst_code='Bern Gosteli-Archiv'">
+                        <xsl:text>B445</xsl:text>
                     </xsl:when>
                     <xsl:when test="$inst_code='Bern UB Medizingeschichte: Rorschach-Archiv'">
-                        <xsl:text>HAN003</xsl:text>
+                        <xsl:text>HAN001</xsl:text>
                     </xsl:when>
                     <xsl:when test="$inst_code='Luzern ZHB'">
-                        <xsl:text>HAN004</xsl:text>
+                        <xsl:text>LUZHB</xsl:text>
                     </xsl:when>
                     <xsl:when test="$inst_code='KB Appenzell Ausserrhoden'">
-                        <xsl:text>HAN005</xsl:text>
+                        <xsl:text>SGARK</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$inst_code='St. Gallen KB Vadiana'">
+                        <xsl:text>SGKBV</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$inst_code='St. Gallen Stiftsbibliothek'">
+                        <xsl:text>SGSTI</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$inst_code='Solothurn ZB'">
+                        <xsl:text>ZBSO</xsl:text>
                     </xsl:when>
                     <xsl:otherwise/>
                 </xsl:choose>
@@ -1374,19 +1439,28 @@
                         <xsl:text>A100</xsl:text>                      
                     </xsl:when>
                     <xsl:when test="$inst_code='Basel UB Wirtschaft - SWA'">
-                        <xsl:text>HAN001</xsl:text>
+                        <xsl:text>A125</xsl:text>
                     </xsl:when>
-                    <xsl:when test="$inst_code='Bern Gosteli Archiv'">
-                        <xsl:text>HAN002</xsl:text>
+                    <xsl:when test="$inst_code='Bern Gosteli-Archiv'">
+                        <xsl:text>B445</xsl:text>
                     </xsl:when>
                     <xsl:when test="$inst_code='Bern UB Medizingeschichte: Rorschach-Archiv'">
-                        <xsl:text>HAN003</xsl:text>
+                        <xsl:text>HAN001</xsl:text>
                     </xsl:when>
                     <xsl:when test="$inst_code='Luzern ZHB'">
-                        <xsl:text>HAN004</xsl:text>
+                        <xsl:text>LUZHB</xsl:text>
                     </xsl:when>
                     <xsl:when test="$inst_code='KB Appenzell Ausserrhoden'">
-                        <xsl:text>HAN005</xsl:text>
+                        <xsl:text>SGARK</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$inst_code='St. Gallen KB Vadiana'">
+                        <xsl:text>SGKBV</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$inst_code='St. Gallen Stiftsbibliothek'">
+                        <xsl:text>SGSTI</xsl:text>
+                    </xsl:when>
+                    <xsl:when test="$inst_code='Solothurn ZB'">
+                        <xsl:text>ZBSO</xsl:text>
                     </xsl:when>
                     <xsl:otherwise/>
                 </xsl:choose>
@@ -1435,13 +1509,6 @@
                 </xsl:element>
             </xsl:if>
             
-            <xsl:if test="../marc:datafield[@tag='506']">
-                <xsl:element name="subfield">
-                    <xsl:attribute name="code" select="'z'"/>
-                    <xsl:value-of select="../marc:datafield[@tag='506']/marc:subfield[@code='a']/text()"/>
-                </xsl:element>
-            </xsl:if>  
-            
         </xsl:element>
         
         
@@ -1485,6 +1552,12 @@
                         </xsl:when>
                         <xsl:when test="@tag='902'">
                             <xsl:text>710</xsl:text>
+                        </xsl:when>
+                        <xsl:when test="@tag='490'">
+                            <xsl:text>499</xsl:text>
+                        </xsl:when>
+                        <xsl:when test="@tag='773'">
+                            <xsl:text>779</xsl:text>
                         </xsl:when>
                         <xsl:otherwise>
                             <xsl:value-of select="@tag"/>
