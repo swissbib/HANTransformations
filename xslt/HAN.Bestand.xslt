@@ -145,7 +145,9 @@
                 <xsl:when test="@tag='505'">                    
                    <xsl:call-template name="title_505"/> 
                 </xsl:when>
-                <xsl:when test="@tag='541'"/>  
+                <xsl:when test="@tag='541'">
+                    <xsl:call-template name="acquisition"/>
+                </xsl:when>  
                 <xsl:when test="@tag='583'"/>
                 <xsl:when test="@tag='593'"/>  
                 <xsl:when test="@tag='596'"/> 
@@ -477,6 +479,25 @@
         
     </xsl:template>
     
+   <!--Template für die Erstellung des Feld 541.
+   Der Kaufpreis in $h soll nicht kopiert
+   werden.-->
+   <xsl:template name="acquisition">
+       <xsl:element name="datafield">
+           <xsl:attribute name="tag" select="'541'"/>
+           <xsl:attribute name="ind1" select="' '"/>
+           <xsl:attribute name="ind2" select="' '"/>
+           <xsl:for-each select="marc:subfield[@code != 'h']">
+               <xsl:element name="{local-name()}">
+                   <xsl:for-each select="@*">
+                       <xsl:copy-of select="."/>
+                       <xsl:value-of select="../text()"/>
+                   </xsl:for-each>      
+               </xsl:element>
+           </xsl:for-each>
+       </xsl:element>
+       
+   </xsl:template> 
     
    <!--Template für die Erstellung der Felder 
    490 und 773-->
