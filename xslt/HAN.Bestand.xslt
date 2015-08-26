@@ -1143,15 +1143,20 @@
             <!--Für Bestände  -->  
             <xsl:when test="$LDR_06='p'">                
                 <xsl:variable name="spec_1" select="'CL01'"/>
-                <xsl:choose>
+                
+                <!--Momentan ist nicht erwünscht, dass Briefsammlungen als solche codiert
+                werden (genau eine HAN-Aufnahme). Sie sollen auf XL010000
+                gemappt werden-->
+                
+                <!--<xsl:choose>
                     
-                    <!--Wenn Briefsammlung-->
+                    <!-\-Wenn Briefsammlung-\->
                     <xsl:when test="$format_main='Briefe = Correspondance'">
                         <xsl:variable name="spec_2" select="'01'"/>
                         <xsl:variable name="generic" select="'XK020100'"/>                       
                         <xsl:choose>
                             
-                            <!--Wenn online-Briefsammlung-->
+                            <!-\-Wenn online-Briefsammlung-\->
                             <xsl:when test="$format_side=
                                 'CF Elektron. Daten Fernzugriff=Fichier online'">
                                 <xsl:variable name="spec_3" select="'53'"/>
@@ -1161,7 +1166,7 @@
                                 </xsl:call-template> 
                             </xsl:when>
                             
-                            <!--Wenn Briefsammlung, aber nicht online-->
+                            <!-\-Wenn Briefsammlung, aber nicht online-\->
                             <xsl:otherwise>
                                 <xsl:variable name="spec_3" select="'00'"/>
                                 <xsl:call-template name="format_898">
@@ -1172,16 +1177,16 @@
                         </xsl:choose>
                     </xsl:when>
                     
-                    <!--Wenn Sammlung, aber keine Briefe-->
-                    <xsl:otherwise>
+                    <!-\-Wenn Sammlung, aber keine Briefe-\->
+                    <xsl:otherwise>-->
                         <xsl:variable name="specific" select="'CL010000'"/>
                         <xsl:variable name="generic" select="'XL010000'"/>
                         <xsl:call-template name="format_898">
                             <xsl:with-param name="specific" select="$specific"/>
                             <xsl:with-param name="generic" select="$generic"/>       
                         </xsl:call-template>
-                    </xsl:otherwise>
-                </xsl:choose>                
+                    <!--</xsl:otherwise>-->
+                <!--</xsl:choose>   -->             
             </xsl:when>   
             
             <!--Für Musikmanuskripte-->
