@@ -1030,7 +1030,7 @@
             <!--Für Manuskripte-->
             <xsl:when test="$LDR_06='t'">
                 <xsl:variable name="spec_1" select="'BK03'"/>
-                <xsl:variable name="generic" select="'XK020000'"/>
+                <xsl:variable name="generic" select="'XK030000'"/>
                 <!--Code für Buch-->
                 <xsl:choose>
                     <xsl:when test="$format_main='Briefe = Correspondance'">
