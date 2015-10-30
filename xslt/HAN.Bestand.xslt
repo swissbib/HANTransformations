@@ -111,6 +111,9 @@
                 <xsl:when test="matches(@tag, '24[05]')">
                     <xsl:call-template name="title"/>
                 </xsl:when>
+                <xsl:when test="matches(@tag, '351')">
+                    <xsl:call-template name="level" />
+                </xsl:when>
                 
                 <!--Für Felder 490 und 773 wird in VuFind automatisch
                 ein Link mit der Bezeichung 'Serie / Reihe'
@@ -307,8 +310,36 @@
             
         </xsl:element>
     </xsl:template>
-    
-    
+
+    <!-- Template für die Verarbeitung der Verzeichnungsstufe (351 $c) -->
+    <xsl:template name="level">
+        <xsl:variable name="level" select="marc:subfield[@code='c']/text()"/>
+        <xsl:element name="datafield">
+            <xsl:attribute name="tag" select="'351'"/>
+            <xsl:attribute name="ind1" select="' '"/>
+            <xsl:attribute name="ind2" select="' '"/>
+            <xsl:for-each select="marc:subfield">
+                <xsl:choose>
+                    <!-- entferne Text nach dem Gleichzeichen, um nur deutsche Bezeichnung zu erhalten -->
+                    <xsl:when test="@code='c'">
+                        <xsl:element name="{local-name()}">
+                            <xsl:attribute name="code" select="'c'"/>
+                            <xsl:value-of select="replace($level, '=.*$', '')" />
+                        </xsl:element>
+                    </xsl:when>
+                    <xsl:otherwise>
+                        <xsl:element name="{local-name()}">
+                            <xsl:for-each select="@*">
+                                <xsl:copy-of select="."/>
+                                <xsl:value-of select="../text()"/>
+                            </xsl:for-each>
+                        </xsl:element>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:for-each>
+        </xsl:element>
+    </xsl:template>
+
     <!--Template für die Verarbeitung von Fussnoten-->
     <xsl:template name="footnotes">
         <xsl:element name="{local-name()}">
@@ -496,8 +527,7 @@
                </xsl:element>
            </xsl:for-each>
        </xsl:element>
-       
-   </xsl:template> 
+   </xsl:template>
     
    <!--Template für die Erstellung der Felder 
    490 und 773-->
