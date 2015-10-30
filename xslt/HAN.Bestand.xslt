@@ -806,7 +806,7 @@
                             <!--'Patron'-->
                         </xsl:when>
                         <xsl:when test="@ind1='P'">
-                            <xsl:text>cre</xsl:text>
+                            <xsl:text>com</xsl:text>
                         </xsl:when>
                     </xsl:choose>
                 </xsl:when>                
@@ -845,7 +845,7 @@
                             <xsl:text>pat</xsl:text>
                         </xsl:when>
                         <xsl:when test="@ind1='P'">
-                            <xsl:text>cre</xsl:text>
+                            <xsl:text>com</xsl:text>
                         </xsl:when>
                     </xsl:choose> 
                 </xsl:when>
