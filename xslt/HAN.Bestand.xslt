@@ -77,8 +77,8 @@
     <!--Verarbeitung von Feldern, die gemappt oder gelöscht werden sollen-->
     <xsl:template match="marc:datafield">
         <xsl:for-each select="."> 
-            <xsl:choose>   
-                
+            <xsl:choose>
+                <xsl:when test="@tag='019'"/>
                 <!--Nach Feld 024 soll Feld 035
                 eingefügt werden-->
                 <xsl:when test="@tag='024'">
