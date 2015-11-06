@@ -1061,16 +1061,19 @@
             <xsl:when test="$LDR_06='t'">
                 <xsl:variable name="spec_1" select="'BK03'"/>
                 <xsl:variable name="generic" select="'XK030000'"/>
+                <xsl:variable name="hierarchy_1" select="'XH00'"/>
                 <!--Code für Buch-->
                 <xsl:choose>
                     <xsl:when test="$format_main='Briefe = Correspondance'">
                         <xsl:variable name="spec_2" select="'01'"/>
+                        <xsl:variable name="hierarchy_2" select="'0100'"/>
                         <xsl:choose>
                             <xsl:when test="$format_side='CF Elektron. Daten Fernzugriff=Fichier online'">
                                 <xsl:variable name="spec_3" select="'53'"/>
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
                                 </xsl:call-template>
                             </xsl:when>
                             
@@ -1079,7 +1082,8 @@
                                 <xsl:variable name="spec_3" select="'00'"/>
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
                                 </xsl:call-template>
                             </xsl:otherwise>                   
                         </xsl:choose>      
@@ -1088,6 +1092,7 @@
                     <!--Wenn Manuskript, aber kein Brief-->
                     <xsl:otherwise>
                         <xsl:variable name="spec_2" select="'00'"/>
+                        <xsl:variable name="hierarchy_2" select="'0000'"/>
                         <xsl:choose>
                             
                             <!--Wenn online-Dokument-->
@@ -1095,7 +1100,8 @@
                                 <xsl:variable name="spec_3" select="'53'"/> 
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
                                 </xsl:call-template>
                             </xsl:when>
                             
@@ -1104,7 +1110,8 @@
                                 <xsl:variable name="spec_3" select="'00'"/>
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
                                 </xsl:call-template>
                             </xsl:otherwise>
                         </xsl:choose>                        
@@ -1115,26 +1122,30 @@
             <!--Für Bilder-->
             <xsl:when test="$LDR_06='k'">
                 <xsl:variable name="spec_1" select="'VM02'"/>
+                <xsl:variable name="hierarchy_1" select="'XM02'"/>
                 <xsl:choose>
                     
                     <!--Wenn Foto-->
                     <xsl:when test="$format_main='VM Foto = Photo'">
                         <xsl:variable name="spec_2" select="'04'"/>
                         <xsl:variable name="generic" select="'XM020400'"/>
+                        <xsl:variable name="hierarchy_2" select="'0400'"/>
                         <xsl:choose>
                             <xsl:when test="$format_side=
                                 'CF Elektron. Daten Fernzugriff=Fichier online'">
                                 <xsl:variable name="spec_3" select="'53'"/>
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
                                 </xsl:call-template>
                             </xsl:when> 
                             <xsl:otherwise>
                                 <xsl:variable name="spec_3" select="'00'"/>
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
                                 </xsl:call-template>
                             </xsl:otherwise>
                         </xsl:choose>
@@ -1144,6 +1155,7 @@
                     <xsl:otherwise>
                         <xsl:variable name="spec_2" select="'00'"/>
                         <xsl:variable name="generic" select="'XM020000'"/>
+                        <xsl:variable name="hierarchy_2" select="'0000'"/>
                         <xsl:choose>
                             
                             <!--Online-->
@@ -1152,7 +1164,8 @@
                                 <!--Bildmaterial-->
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
                                 </xsl:call-template>  
                             </xsl:when>
                             
@@ -1161,7 +1174,8 @@
                                 <xsl:variable name="spec_3" select="'00'"/>
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>                                    
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
                                 </xsl:call-template>  
                             </xsl:otherwise>
                         </xsl:choose>
@@ -1211,9 +1225,11 @@
                     <xsl:otherwise>-->
                         <xsl:variable name="specific" select="'CL010000'"/>
                         <xsl:variable name="generic" select="'XL010000'"/>
+                        <xsl:variable name="hierarchy" select="'XL010000'"/>
                         <xsl:call-template name="format_898">
                             <xsl:with-param name="specific" select="$specific"/>
-                            <xsl:with-param name="generic" select="$generic"/>       
+                            <xsl:with-param name="generic" select="$generic"/>
+                            <xsl:with-param name="hierarchy" select="$hierarchy"/>
                         </xsl:call-template>
                     <!--</xsl:otherwise>-->
                 <!--</xsl:choose>   -->             
@@ -1221,13 +1237,15 @@
             
             <!--Für Musikmanuskripte-->
             <xsl:when test="$LDR_06='d'">
-                <xsl:variable name="spec_1" select="'MU02'"/> 
+                <xsl:variable name="spec_1" select="'MU02'"/>
+                <xsl:variable name="hierarchy_1" select="'XH00'"/>
                 
                 <!--Wenn Partitur-->
                 <xsl:choose>
                     <xsl:when test="$format_main='PM Partitur = Partition'">
                         <xsl:variable name="spec_2" select="'01'"/>
                         <xsl:variable name="generic" select="'XU010100'"/>
+                        <xsl:variable name="hierarchy_2" select="'0200'"/>
                         
                         <!--Wenn online-->
                         <xsl:choose>
@@ -1235,7 +1253,8 @@
                                 <xsl:variable name="spec_3" select="'53'"/>     
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>  
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
                                 </xsl:call-template>
                             </xsl:when>
                             
@@ -1244,7 +1263,8 @@
                                 <xsl:variable name="spec_3" select="'00'"/>     
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>  
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
                                 </xsl:call-template>
                             </xsl:otherwise>
                         </xsl:choose>            
@@ -1254,14 +1274,16 @@
                     <xsl:otherwise>
                         <xsl:variable name="spec_2" select="'00'"/>
                         <xsl:variable name="generic" select="'XU010000'"/>
-                        
+                        <xsl:variable name="hierarchy_2" select="'0200'"/>
+
                         <!--Wenn online-->
                         <xsl:choose>
                             <xsl:when test="$format_side='CF Elektron. Daten Fernzugriff=Fichier online'">
                                 <xsl:variable name="spec_3" select="'53'"/>     
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>  
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
                                 </xsl:call-template>
                             </xsl:when>
                             
@@ -1270,7 +1292,8 @@
                                 <xsl:variable name="spec_3" select="'00'"/>     
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>  
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
                                 </xsl:call-template>
                             </xsl:otherwise>
                         </xsl:choose>                    
@@ -1284,6 +1307,7 @@
                 <xsl:variable name="spec_1" select="'MP02'"/>
                 <xsl:variable name="spec_2" select="'00'"/>
                 <xsl:variable name="generic" select="'XP010000'"/>
+                <xsl:variable name="hierarchy" select="'XH000300'"/>
                 
                 <!--Wenn online-->
                 <xsl:choose>
@@ -1291,7 +1315,8 @@
                         <xsl:variable name="spec_3" select="'53'"/>     
                         <xsl:call-template name="format_898">
                             <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                            <xsl:with-param name="generic" select="$generic"/>  
+                            <xsl:with-param name="generic" select="$generic"/>
+                            <xsl:with-param name="hierarchy" select="$hierarchy"/>
                         </xsl:call-template>
                     </xsl:when>
                     
@@ -1300,7 +1325,8 @@
                         <xsl:variable name="spec_3" select="'00'"/>     
                         <xsl:call-template name="format_898">
                             <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                            <xsl:with-param name="generic" select="$generic"/>  
+                            <xsl:with-param name="generic" select="$generic"/>
+                            <xsl:with-param name="hierarchy" select="$hierarchy"/>
                         </xsl:call-template>
                     </xsl:otherwise>
                 </xsl:choose>                
@@ -1315,6 +1341,7 @@
                         <xsl:variable name="spec_1" select="'BK01'"/>
                         <xsl:variable name="spec_2" select="'00'"/>
                         <xsl:variable name="generic" select="'XK010000'"/>
+                        <xsl:variable name="hierarchy" select="'XK010000'"/>
                         <!--Artikel-->
                         
                         <!--Wenn online-->
@@ -1323,7 +1350,8 @@
                                 <xsl:variable name="spec_3" select="'53'"/>     
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>  
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="$hierarchy"/>
                                 </xsl:call-template>
                             </xsl:when>
                             
@@ -1332,7 +1360,8 @@
                                 <xsl:variable name="spec_3" select="'00'"/>     
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>  
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="$hierarchy"/>
                                 </xsl:call-template>
                             </xsl:otherwise>
                         </xsl:choose>           
@@ -1343,6 +1372,7 @@
                         <xsl:variable name="spec_1" select="'BK02'"/>
                         <xsl:variable name="spec_2" select="'00'"/>
                         <xsl:variable name="generic" select="'XK020000'"/>
+                        <xsl:variable name="hierarchy" select="'XK020000'"/>
                         <!--Buch-->
                         
                         <!--Wenn online-->
@@ -1351,7 +1381,8 @@
                                 <xsl:variable name="spec_3" select="'53'"/>     
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>  
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="$hierarchy"/>
                                 </xsl:call-template>
                             </xsl:when>
                             
@@ -1360,7 +1391,8 @@
                                 <xsl:variable name="spec_3" select="'00'"/>     
                                 <xsl:call-template name="format_898">
                                     <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
-                                    <xsl:with-param name="generic" select="$generic"/>  
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="$hierarchy"/>
                                 </xsl:call-template>
                             </xsl:otherwise>
                             
@@ -1377,7 +1409,8 @@
     <!--Template für die Erstellung des Felds 898-->
     <xsl:template name="format_898">        
         <xsl:param name="specific">xxx</xsl:param>       
-        <xsl:param name="generic">yyy</xsl:param>        
+        <xsl:param name="generic">yyy</xsl:param>
+        <xsl:param name="hierarchy">zzz</xsl:param>
         <xsl:element name="datafield">
             <xsl:attribute name="tag">
                 <xsl:text>898</xsl:text>
@@ -1399,6 +1432,12 @@
                     <xsl:text>b</xsl:text>
                 </xsl:attribute>
                 <xsl:value-of select="$generic"/>
+            </xsl:element>
+            <xsl:element name="subfield">
+                <xsl:attribute name="code">
+                    <xsl:text>c</xsl:text>
+                </xsl:attribute>
+                <xsl:value-of select="$hierarchy"/>
             </xsl:element>
         </xsl:element>
         
