@@ -168,6 +168,7 @@
                     </xsl:choose>
                 </xsl:when>
                 <xsl:when test="@tag='856'">
+                    <xsl:call-template name="copied_info"/>
                     <xsl:call-template name="URL"/>
                 </xsl:when>                
                 <xsl:when test="matches(@tag,'710|902')">
@@ -984,8 +985,8 @@
         </xsl:element>
         
         <!--Hier soll das Template für die Felder 950
-        aufgerufen werden-->
-        <xsl:call-template name="copied_info"/>
+        aufgerufen werden
+        <xsl:call-template name="copied_info"/>-->
     </xsl:template>
     
     
