@@ -62,7 +62,7 @@
                     <xsl:call-template name="HAN_link">
                         <xsl:with-param name="focus" select="'record'"/>
                     </xsl:call-template>    
-                </xsl:if>                            
+                </xsl:if>
                 <xsl:apply-templates select="marc:datafield"/>
             </xsl:element>
         </xsl:for-each>
@@ -107,9 +107,13 @@
                             </xsl:element>
                         </xsl:otherwise>                        
                     </xsl:choose>                    
-                </xsl:when>    
-                <xsl:when test="matches(@tag, '24[05]')">
+                </xsl:when>
+                <xsl:when test="@tag='240'">
                     <xsl:call-template name="title"/>
+                </xsl:when>
+                <xsl:when test="@tag='245'">
+                    <xsl:call-template name="title" />
+                    <xsl:call-template name="copied_info"/>
                 </xsl:when>
                 <xsl:when test="matches(@tag, '351')">
                     <xsl:call-template name="level" />
@@ -168,7 +172,6 @@
                     </xsl:choose>
                 </xsl:when>
                 <xsl:when test="@tag='856'">
-                    <xsl:call-template name="copied_info"/>
                     <xsl:call-template name="URL"/>
                 </xsl:when>                
                 <xsl:when test="matches(@tag,'710|902')">
@@ -194,7 +197,7 @@
                     <xsl:call-template name="copy_datafields"/>
                 </xsl:otherwise>
             </xsl:choose>
-        </xsl:for-each> 
+        </xsl:for-each>
     </xsl:template>
     
     
@@ -245,7 +248,7 @@
     </xsl:template>  
     
     
-    <!--Template für die Verarbeitung von Feld 245-->
+    <!--Template für die Verarbeitung von Feld 245 und 240-->
     <xsl:template name="title">
         <xsl:variable name="title" select="marc:subfield[@code='a']/text()"/>
         <xsl:element name="{local-name()}">
@@ -1606,16 +1609,6 @@
             </xsl:if>
             
         </xsl:element>
-        
-        
-        <!--Falls kein Feld 856 vorhanden ist, soll an dieser Stelle
-        das Template für die Felder 950 aufgerufen werden-->
-        <xsl:choose>
-            <xsl:when test="../marc:datafield[@tag='856']"/>
-            <xsl:otherwise>
-                <xsl:call-template name="copied_info"/>
-            </xsl:otherwise>
-        </xsl:choose>
     </xsl:template>
     
     <!-- Template für die Erstellung der Felder 950-->    
