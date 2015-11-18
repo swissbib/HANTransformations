@@ -163,6 +163,7 @@
                     <xsl:call-template name="subject"/>
                 </xsl:when>
                 <xsl:when test="@tag='CAT'"/>
+                <xsl:when test="@tag='830'"/>
                 <xsl:when test="@tag='852'">
                     <xsl:choose>
                         <xsl:when test="@ind1='A' or @ind1='E'"/>
