@@ -90,7 +90,7 @@
                 <xsl:when test="@tag='092'"/>
                 <xsl:when test="matches(@tag, '[17][0135][012]')">
                     <xsl:call-template name="copy_datafields">
-                        <xsl:with-param name="copy_mode">entry</xsl:with-param>
+                        <xsl:with-param name="copy_mode" select="'heading'"/>
                     </xsl:call-template>                       
                 </xsl:when>
                 <xsl:when test="@tag='240'">
@@ -213,8 +213,8 @@
             <xsl:for-each select="marc:subfield">
                 <xsl:choose>
                     <!-- Wenn es sich um einen normierten Sucheinstieg handelt -->
-                    <xsl:when test="$copy_mode='entry'">       
-                        <xsl:call-template name="entry_subfields"/>                                    
+                    <xsl:when test="$copy_mode='heading'">       
+                        <xsl:call-template name="heading_subfields"/>                                    
                     </xsl:when>
                     
                     <!-- Wenn es kein normierter Sucheinstieg ist, alle Unterfelder
@@ -235,13 +235,13 @@
     
     
     <!-- Erstellen der Unterfelder bei normierten Sucheinstiegen -->
-    <xsl:template name="entry_subfields">
+    <xsl:template name="heading_subfields">
         <xsl:choose>
             <xsl:when test="@code='a'">
                 
                 <xsl:choose>
                     <!-- Wenn es sich um einen Sucheinstieg für eine Person handelt -->
-                    <xsl:when test="..[@tag='100' or '700']">
+                    <xsl:when test="matches(..[@tag], '[167]00')">
                         <xsl:choose>
                             
                             <!-- Wenn Ansetzung nach Nachname -->
@@ -270,6 +270,14 @@
                             
                         </xsl:choose>
                     </xsl:when>
+                    
+                    <!-- Wenn keine Person, ebenfalls $a unverändert kopieren -->
+                    <xsl:otherwise>
+                        <xsl:element name="{local-name()}">
+                            <xsl:attribute name="code" select="'a'"/>
+                            <xsl:value-of select="./text()"/>
+                        </xsl:element>
+                    </xsl:otherwise>   
                 </xsl:choose>                                
             </xsl:when>
             
@@ -699,60 +707,94 @@
     <!--Template für die Verarbeitung von Schlagwort-
     Feldern-->
     <xsl:template name="subject">
-        <xsl:element name="datafield">
-            <xsl:attribute name="tag" select="'653'"/>
-            <xsl:attribute name="ind1">
-                <xsl:text> </xsl:text>
-            </xsl:attribute>
-            <xsl:attribute name="ind2">
-                
-                <!--'Type of term or name' im 
-                Indikator 2-->
-                <xsl:choose>
-                    <xsl:when test="@tag='600'">
-                        <xsl:text>1</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="@tag='610'">
-                        <xsl:text>2</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="@tag='611'">
-                        <xsl:text>3</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="@tag='650'">
-                        <xsl:text>0</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="@tag='651'">
-                        <xsl:text>5</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="@tag='655'">
-                        <xsl:text>6</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="@tag='690'">
-                        <xsl:text> </xsl:text>
-                    </xsl:when>
-                </xsl:choose>
-            </xsl:attribute> 
+        <xsl:choose>
             
-            <!--Verarbeitung der Unterfelder. Wenn es ausser            
+            <!-- Wenn die Normdatei für die Sacherschliessung in 
+                $2 spezifiziert ist -->
+            <xsl:when test="@ind2='7' and marc:subfield[@code='2']">
+                <xsl:call-template name="copy_datafields">
+                    <xsl:with-param name="copy_mode" select="'heading'"/>
+                </xsl:call-template>
+            </xsl:when>
+            
+            <!-- Ansonsten Inhalt in Feld 653 schreiben -->
+            <xsl:otherwise>
+                <xsl:element name="datafield">
+                    <xsl:attribute name="tag" select="'653'"/>
+                    <xsl:attribute name="ind1">
+                        <xsl:text> </xsl:text>
+                    </xsl:attribute>
+                    <xsl:attribute name="ind2">
+                        
+                        <!--'Type of term or name' im 
+                Indikator 2-->
+                        <xsl:choose>
+                            <xsl:when test="@tag='600'">
+                                <xsl:text>1</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="@tag='610'">
+                                <xsl:text>2</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="@tag='611'">
+                                <xsl:text>3</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="@tag='650'">
+                                <xsl:text>0</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="@tag='651'">
+                                <xsl:text>5</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="@tag='655'">
+                                <xsl:text>6</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="@tag='690'">
+                                <xsl:text> </xsl:text>
+                            </xsl:when>
+                        </xsl:choose>
+                        
+                    </xsl:attribute> 
+                    
+                    <!--Verarbeitung der Unterfelder. Wenn es ausser            
             $a andere Unterfelder gibt, sollen sie aneinander-
             gereiht werden-->
-            <xsl:variable name="cont_com">
-                <xsl:for-each select="marc:subfield">
-                    <xsl:value-of select="concat(./text(), ', ')"/>
-                </xsl:for-each>
-            </xsl:variable>
-            
-            <!--Komma hinten abschneiden-->
-            <xsl:variable name="content" select="concat($cont_com, '++')"/>
-            <xsl:variable name="sequence" select="substring-before($content, ', ++')"/>
-            
-            <!--Inhalt in Unterfelds a schreiben-->
-            <xsl:element name="subfield">
-                <xsl:attribute name="code" select="'a'"/>
-                <xsl:value-of select="$sequence"/>
-            </xsl:element>
-            
-        </xsl:element>        
+                    <xsl:variable name="cont_com">
+                        <xsl:for-each select="marc:subfield">
+                            <xsl:value-of select="concat(./text(), ', ')"/>
+                        </xsl:for-each>
+                    </xsl:variable>
+                    
+                    <!--Komma hinten abschneiden-->
+                    <xsl:variable name="content" select="concat($cont_com, '++')"/>
+                    <xsl:variable name="sequence" select="substring-before($content, ', ++')"/>
+                    
+                    <!--Inhalt in Unterfeld a schreiben-->
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'a'"/>
+                        <xsl:value-of select="$sequence"/>
+                    </xsl:element>
+                </xsl:element>
+            </xsl:otherwise>            
+        </xsl:choose>  
+        
+        <xsl:choose>
+            <!-- Wenn es sich um Initien handelt,
+                            Inhalt zusätzlich in 500 schreiben inkl.
+                            einleitendem 'Incipit: ' -->
+            <xsl:when test="(@tag='690' and @ind1='A' and @ind2='1') or 
+                (@tag='690' and @ind1='A' and @ind2='2')">
+                <xsl:element name="datafield">
+                    <xsl:attribute name="tag" select="'500'"/>
+                    <xsl:attribute name="ind1" select="' '"/>
+                    <xsl:attribute name="ind2" select="' '"/>
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'a'"/>
+                        <xsl:value-of select="concat('Incipit: ', marc:subfield[@code='a']/text())"/>
+                    </xsl:element>
+                </xsl:element>
+            </xsl:when>
+            <xsl:otherwise/>
+        </xsl:choose>
+        
     </xsl:template>
    
   
@@ -1373,7 +1415,7 @@
                     Unterfelder geschrieben werden -->
                     <xsl:when test="matches(@tag, '[17][0135][012]')">
                         <xsl:for-each select="marc:subfield">
-                            <xsl:call-template name="entry_subfields"/>
+                            <xsl:call-template name="heading_subfields"/>
                         </xsl:for-each>                       
                     </xsl:when>
                     
