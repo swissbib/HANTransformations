@@ -1228,7 +1228,7 @@
     (Exemplare)-->
     
     <xsl:template name="HOL">
-        <xsl:variable name="inst_code" select="marc:subfield[@code='b']/text()"/>
+        <xsl:variable name="inst_code" select="marc:subfield[@code='a']/text()"/>
         <xsl:element name="datafield">
             <xsl:attribute name="tag" select="'949'"/>
             <xsl:attribute name="ind1" select="' '"/>
@@ -1237,101 +1237,117 @@
                 <xsl:attribute name="code" select="'B'"/>
                 <xsl:text>HAN</xsl:text>
             </xsl:element>
-            <xsl:element name="subfield">
-                <xsl:attribute name="code" select="'0'"/>
-                <xsl:value-of select="marc:subfield[@code='b']/text()"/>
-            </xsl:element>
             
-           <!-- In die Unterfelder F und b soll der Code für die jeweilige Institution 
+            <!-- Die folgenden Unterfelder sollen nur geschrieben werden, falls
+            $a (Name der Institution) vorhanden -->
+            <xsl:choose>
+                
+                <!-- $0 mit Name der Institution -->
+                <xsl:when test="marc:subfield[@code='a']">
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'0'"/>
+                        <xsl:value-of select="marc:subfield[@code='a']/text()"/>
+                    </xsl:element>
+                    
+                    <!-- In die Unterfelder F und b soll der Code für die jeweilige Institution 
             geschrieben werden (dopelt)-->
-            <xsl:element name="subfield">
-                <xsl:attribute name="code" select="'F'"/>
-                <xsl:choose>
-                    <xsl:when test="$inst_code='Basel UB'">
-                        <xsl:text>A100</xsl:text>                      
-                    </xsl:when>
-                    <xsl:when test="$inst_code='Basel UB Wirtschaft - SWA'">
-                        <xsl:text>A125</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='Bern Gosteli-Archiv'">
-                        <xsl:text>B445</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='Bern UB Medizingeschichte: Rorschach-Archiv'">
-                        <xsl:text>HAN001</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='Luzern ZHB'">
-                        <xsl:text>LUZHB</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='KB Appenzell Ausserrhoden'">
-                        <xsl:text>SGARK</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='St. Gallen KB Vadiana'">
-                        <xsl:text>SGKBV</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='St. Gallen Stiftsbibliothek'">
-                        <xsl:text>SGSTI</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='Solothurn ZB'">
-                        <xsl:text>ZBSO</xsl:text>
-                    </xsl:when>
-                    <xsl:otherwise/>
-                </xsl:choose>
-            </xsl:element>
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'F'"/>
+                        <xsl:choose>
+                            <xsl:when test="$inst_code='Basel UB'">
+                                <xsl:text>A100</xsl:text>                      
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Basel UB Wirtschaft - SWA'">
+                                <xsl:text>A125</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Bern Gosteli-Archiv'">
+                                <xsl:text>B445</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Bern UB Medizingeschichte: Rorschach-Archiv'">
+                                <xsl:text>HAN001</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Luzern ZHB'">
+                                <xsl:text>LUZHB</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='KB Appenzell Ausserrhoden'">
+                                <xsl:text>SGARK</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='St. Gallen KB Vadiana'">
+                                <xsl:text>SGKBV</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='St. Gallen Stiftsbibliothek'">
+                                <xsl:text>SGSTI</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Solothurn ZB'">
+                                <xsl:text>ZBSO</xsl:text>
+                            </xsl:when>
+                            <xsl:otherwise/>
+                        </xsl:choose>
+                    </xsl:element>
+                    
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'b'"/>
+                        <xsl:choose>
+                            <xsl:when test="$inst_code='Basel UB'">
+                                <xsl:text>A100</xsl:text>                      
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Basel UB Wirtschaft - SWA'">
+                                <xsl:text>A125</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Bern Gosteli-Archiv'">
+                                <xsl:text>B445</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Bern UB Medizingeschichte: Rorschach-Archiv'">
+                                <xsl:text>HAN001</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Luzern ZHB'">
+                                <xsl:text>LUZHB</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='KB Appenzell Ausserrhoden'">
+                                <xsl:text>SGARK</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='St. Gallen KB Vadiana'">
+                                <xsl:text>SGKBV</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='St. Gallen Stiftsbibliothek'">
+                                <xsl:text>SGSTI</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Solothurn ZB'">
+                                <xsl:text>ZBSO</xsl:text>
+                            </xsl:when>
+                            <xsl:otherwise/>
+                        </xsl:choose>
+                    </xsl:element>
+                </xsl:when>
+            </xsl:choose>
             
-            <xsl:element name="subfield">
-                <xsl:attribute name="code" select="'b'"/>
-                <xsl:choose>
-                    <xsl:when test="$inst_code='Basel UB'">
-                        <xsl:text>A100</xsl:text>                      
-                    </xsl:when>
-                    <xsl:when test="$inst_code='Basel UB Wirtschaft - SWA'">
-                        <xsl:text>A125</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='Bern Gosteli-Archiv'">
-                        <xsl:text>B445</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='Bern UB Medizingeschichte: Rorschach-Archiv'">
-                        <xsl:text>HAN001</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='Luzern ZHB'">
-                        <xsl:text>LUZHB</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='KB Appenzell Ausserrhoden'">
-                        <xsl:text>SGARK</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='St. Gallen KB Vadiana'">
-                        <xsl:text>SGKBV</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='St. Gallen Stiftsbibliothek'">
-                        <xsl:text>SGSTI</xsl:text>
-                    </xsl:when>
-                    <xsl:when test="$inst_code='Solothurn ZB'">
-                        <xsl:text>ZBSO</xsl:text>
-                    </xsl:when>
-                    <xsl:otherwise/>
-                </xsl:choose>
-            </xsl:element>
-            
+            <!-- Systemnr. -->
             <xsl:element name="subfield">
                 <xsl:attribute name="code" select="'E'"/>
                 <xsl:value-of select="concat('HAN', ../marc:controlfield[@tag='001']/text())"/>
             </xsl:element>
             
-            <xsl:element name="subfield">
-                <xsl:attribute name="code" select="'1'"/>
-                <xsl:value-of select="marc:subfield[@code='c']/text()"/>
-            </xsl:element>
+            <!-- Abteilung -->
+            <xsl:choose>
+                <xsl:when test="marc:subfield[@code='b']">
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'1'"/>
+                        <xsl:value-of select="marc:subfield[@code='b']/text()"/>
+                    </xsl:element>
+                </xsl:when>
+            </xsl:choose>            
             
+            <!-- Signatur -->
             <xsl:element name="subfield">
                 <xsl:attribute name="code" select="'j'"/>
-                <xsl:value-of select="marc:subfield[@code='d']/text()"/>
+                <xsl:value-of select="marc:subfield[@code='p']/text()"/>
             </xsl:element>
             
             <!--Alternativsignatur kommt in Unterfeld s für "Signatur 2"-->
             <xsl:if test="../marc:datafield[@tag='852' and @ind1='A']">
                 <xsl:element name="subfield">
                     <xsl:attribute name="code" select="'s'"/>
-                    <xsl:value-of select="../marc:datafield[@tag='852' and @ind1='A']/marc:subfield[@code='d']/text()"/>
+                    <xsl:value-of select="../marc:datafield[@tag='852' and @ind1='A']/marc:subfield[@code='p']/text()"/>
                 </xsl:element>
             </xsl:if>
             
@@ -1341,10 +1357,11 @@
                 <xsl:value-of select="concat('http://aleph.unibas.ch/F/?local_base=DSV05&amp;con_lng=GER&amp;func=find-b&amp;find_code=SYS&amp;request=', ../marc:controlfield[@tag='001']/text())"/>
             </xsl:element>
             
-            <xsl:if test="marc:subfield[@code='e']">
+            <!-- Zugang -->
+            <xsl:if test="marc:subfield[@code='q']">
                 <xsl:element name="subfield">
                     <xsl:attribute name="code" select="'z'"/>
-                    <xsl:value-of select="marc:subfield[@code='e']/text()"/>
+                    <xsl:value-of select="marc:subfield[@code='q']/text()"/>
                 </xsl:element>
             </xsl:if>
             
