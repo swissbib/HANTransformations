@@ -241,7 +241,7 @@
                 
                 <xsl:choose>
                     <!-- Wenn es sich um einen Sucheinstieg für eine Person handelt -->
-                    <xsl:when test="matches(..[@tag], '[167]00')">
+                    <xsl:when test="matches(..[@tag], '[17]00')">
                         <xsl:choose>
                             
                             <!-- Wenn Ansetzung nach Nachname -->
@@ -271,7 +271,7 @@
                         </xsl:choose>
                     </xsl:when>
                     
-                    <!-- Wenn keine Person, ebenfalls $a unverändert kopieren -->
+                    <!-- Wenn keine Person bzw. wenn Feld 600, ebenfalls $a unverändert kopieren -->
                     <xsl:otherwise>
                         <xsl:element name="{local-name()}">
                             <xsl:attribute name="code" select="'a'"/>
@@ -717,6 +717,27 @@
                 </xsl:call-template>
             </xsl:when>
             
+            <!-- Wenn es sich um Initien handelt,
+                            Inhalt in 690 schreiben mit Herkunft
+            und ursprünglichen Indikatoren in $2-->
+            <xsl:when test="(@tag='690' and @ind1='A' and @ind2='1') or 
+                (@tag='690' and @ind1='A' and @ind2='2')">
+                <xsl:variable name="ind_incipit" select="./@ind2"/>                    
+                <xsl:element name="{local-name()}">
+                    <xsl:attribute name="tag" select="'690'"/>
+                    <xsl:attribute name="ind1" select="' '"/>
+                    <xsl:attribute name="ind2" select="'7'"/>
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'a'"/>
+                        <xsl:value-of select="marc:subfield[@code='a']/text()"/>
+                    </xsl:element>
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'2'"/>
+                        <xsl:value-of select="concat('han A', $ind_incipit)"/>
+                    </xsl:element>
+                </xsl:element>
+            </xsl:when>
+            
             <!-- Ansonsten Inhalt in Feld 653 schreiben -->
             <xsl:otherwise>
                 <xsl:element name="datafield">
@@ -775,25 +796,6 @@
                 </xsl:element>
             </xsl:otherwise>            
         </xsl:choose>  
-        
-        <xsl:choose>
-            <!-- Wenn es sich um Initien handelt,
-                            Inhalt zusätzlich in 500 schreiben inkl.
-                            einleitendem 'Incipit: ' -->
-            <xsl:when test="(@tag='690' and @ind1='A' and @ind2='1') or 
-                (@tag='690' and @ind1='A' and @ind2='2')">
-                <xsl:element name="datafield">
-                    <xsl:attribute name="tag" select="'500'"/>
-                    <xsl:attribute name="ind1" select="' '"/>
-                    <xsl:attribute name="ind2" select="' '"/>
-                    <xsl:element name="subfield">
-                        <xsl:attribute name="code" select="'a'"/>
-                        <xsl:value-of select="concat('Incipit: ', marc:subfield[@code='a']/text())"/>
-                    </xsl:element>
-                </xsl:element>
-            </xsl:when>
-            <xsl:otherwise/>
-        </xsl:choose>
         
     </xsl:template>
    
