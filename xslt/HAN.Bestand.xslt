@@ -93,7 +93,7 @@
                         <xsl:with-param name="copy_mode" select="'heading'"/>
                     </xsl:call-template>                       
                 </xsl:when>
-                <xsl:when test="@tag='240'">
+                <xsl:when test="matches(@tag, '24[06]')">
                     <xsl:call-template name="title"/>
                 </xsl:when>
                 <xsl:when test="@tag='245'">
@@ -164,7 +164,7 @@
                 <xsl:when test="@tag='903'"/>
                 <xsl:when test="@tag='906' or @tag='907'">
                     <xsl:call-template name="format_908"/>
-                </xsl:when>
+                </xsl:when>                
                 <xsl:otherwise>
                     <xsl:call-template name="copy_datafields"/>
                 </xsl:otherwise>
@@ -317,48 +317,83 @@
             <xsl:attribute name="tag" select="@tag"/>
             <xsl:attribute name="ind1">
                 
-                <!--Wenn eine Verfasser-Haupteintragung
-                vorhanden ist, ist ind1 '1', sonst '0'-->
                 <xsl:choose>
-                    <xsl:when test="../marc:datafield[@tag='100']">
-                        <xsl:text>1</xsl:text>
+                    <!-- Immer ind1=1 bei Feld 240 und 246 -->
+                    <xsl:when test="matches(@tag, '24[06]')">
+                        <xsl:value-of select="'1'"/>
                     </xsl:when>
-                    <xsl:otherwise>
-                        <xsl:text>0</xsl:text>
-                    </xsl:otherwise>
-                </xsl:choose>
-            </xsl:attribute>
-            <xsl:attribute name="ind2">
-                <xsl:choose>
-                    <xsl:when test="starts-with($title, '&lt;')">
-                        <xsl:variable name="nonfiling" 
-                            select="substring-before($title, '&gt;')"/>
-                        <xsl:variable name="length" select="string-length($nonfiling)"/> 
+                    
+                    <!-- Bei Feld 245 -->
+                    <xsl:when test="@tag='245'">
+                        <!--Wenn eine Verfasser-Haupteintragung
+                vorhanden ist, ist ind1 '1', sonst '0'-->
                         <xsl:choose>
-                            <xsl:when test="contains($title, '&gt; ')">
-                                <xsl:value-of select="$length - 1"/>
+                            <xsl:when test="../marc:datafield[matches(@tag,'1[10][10]')]">
+                                <xsl:text>1</xsl:text>
                             </xsl:when>
                             <xsl:otherwise>
-                                <xsl:value-of select="$length - 2"/>
+                                <xsl:text>0</xsl:text>
                             </xsl:otherwise>
                         </xsl:choose>
                     </xsl:when>
+                </xsl:choose>
+            </xsl:attribute>
+            
+            <!-- Indiaktor 2 -->
+            <xsl:attribute name="ind2">
+                <xsl:choose>
+                    
+                    <!-- Bei Feld 246, ind2 übernehmen -->
+                    <xsl:when test="@tag='246'">
+                        <xsl:value-of select="@ind2"/>
+                    </xsl:when>
+                    
+                    <!-- Nonfiling characters bei 240, 245-->
                     <xsl:otherwise>
-                        <xsl:text>0</xsl:text>
+                        <xsl:choose>
+                            <xsl:when test="starts-with($title, '&lt;')">
+                                <xsl:variable name="nonfiling" 
+                                    select="substring-before($title, '&gt;')"/>
+                                <xsl:variable name="length" select="string-length($nonfiling)"/> 
+                                <xsl:choose>
+                                    <xsl:when test="contains($title, '&gt; ')">
+                                        <xsl:value-of select="$length - 1"/>
+                                    </xsl:when>
+                                    <xsl:otherwise>
+                                        <xsl:value-of select="$length - 2"/>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:when>
+                            
+                            <xsl:otherwise>
+                                <xsl:text>0</xsl:text>
+                            </xsl:otherwise>
+                   
+                        </xsl:choose>
                     </xsl:otherwise>
                 </xsl:choose>
-            </xsl:attribute>        
+            </xsl:attribute>    
         
             <!--Schreiben der Unterfelder-->
             <xsl:for-each select="marc:subfield">
                 <xsl:choose>
                     
-                    <!--Bei Unterfeld a sollen die spitzen                    
+                    <!--Bei folgenden Unterfeldern sollen die spitzen                    
                     Klammern rausgenommen werden-->
-                    <xsl:when test="@code='a'">
+                    <xsl:when test="matches(@code, 'a|d|i|j|p')">
                         <xsl:element name="{local-name()}">
-                            <xsl:attribute name="code" select="'a'"/>
-                            <xsl:value-of select="replace($title, '&lt;|&gt;', '')"/>
+                            <xsl:for-each select="@*">
+                                <xsl:copy-of select="."/>
+                                <xsl:value-of select="replace(../text(), '&lt;|&gt;', '')"/>
+                            </xsl:for-each>
+                        </xsl:element>
+                    </xsl:when>
+                    
+                    <!-- GND-Nr. in $0 -->
+                    <xsl:when test="@code='1'">
+                        <xsl:element name="{local-name()}">
+                            <xsl:attribute name="code" select="'0'"/>
+                            <xsl:value-of select="./text()"/>
                         </xsl:element>
                     </xsl:when>
                     
@@ -426,7 +461,7 @@
                         <xsl:value-of select="concat('Begleitmaterial: ', marc:subfield[@code='a']/text())"/>
                     </xsl:when>
                     <xsl:when test="@ind1='B'">
-                        <xsl:value-of select="concat('Vorbesitzer: ', marc:subfield[@code='a']/text())"/>
+                        <xsl:value-of select="concat('Besitzgeschichte: ', marc:subfield[@code='a']/text())"/>
                     </xsl:when>
                     <xsl:when test="@ind1='C' and @ind2='A'">
                         <xsl:value-of select="concat('Wasserzeichen: ', 
@@ -717,12 +752,12 @@
                 </xsl:call-template>
             </xsl:when>
             
-            <!-- Wenn es sich um Initien handelt,
+            <!-- Wenn es sich um 690er handelt,
                             Inhalt in 690 schreiben mit Herkunft
             und ursprünglichen Indikatoren in $2-->
-            <xsl:when test="(@tag='690' and @ind1='A' and @ind2='1') or 
-                (@tag='690' and @ind1='A' and @ind2='2')">
-                <xsl:variable name="ind_incipit" select="./@ind2"/>                    
+            <xsl:when test="@tag='690'">
+                <xsl:variable name="ind1_origin" select="./@ind1"/>   
+                <xsl:variable name="ind2_origin" select="./@ind2"/>   
                 <xsl:element name="{local-name()}">
                     <xsl:attribute name="tag" select="'690'"/>
                     <xsl:attribute name="ind1" select="' '"/>
@@ -733,7 +768,7 @@
                     </xsl:element>
                     <xsl:element name="subfield">
                         <xsl:attribute name="code" select="'2'"/>
-                        <xsl:value-of select="concat('han A', $ind_incipit)"/>
+                        <xsl:value-of select="concat($ind1_origin, $ind2_origin)"/>
                     </xsl:element>
                 </xsl:element>
             </xsl:when>
