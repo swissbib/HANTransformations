@@ -768,7 +768,7 @@
                     </xsl:element>
                     <xsl:element name="subfield">
                         <xsl:attribute name="code" select="'2'"/>
-                        <xsl:value-of select="concat($ind1_origin, $ind2_origin)"/>
+                        <xsl:value-of select="concat('han ', $ind1_origin, $ind2_origin)"/>
                     </xsl:element>
                 </xsl:element>
             </xsl:when>
