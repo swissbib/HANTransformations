@@ -241,7 +241,7 @@
                 
                 <xsl:choose>
                     <!-- Wenn es sich um einen Sucheinstieg für eine Person handelt -->
-                    <xsl:when test="matches(..[@tag], '[17]00')">
+                    <xsl:when test="matches(../@tag, '[17]00')">
                         <xsl:choose>
                             
                             <!-- Wenn Ansetzung nach Nachname -->
