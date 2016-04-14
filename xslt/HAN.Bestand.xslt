@@ -584,9 +584,11 @@
                     Klammern rausgenommen werden.
                     Keine Wegsortierung von Artikeln?-->
                                     <xsl:when test="@code='t'">
-                                        <xsl:element name="{local-name()}">
-                                            <xsl:attribute name="code" select="'t'"/>
-                                            <xsl:value-of select="replace($title, '&lt;|&gt;', '')"/>
+					<xsl:element name="{local-name()}">
+				            <xsl:for-each select="@*">
+                                                <xsl:attribute name="code" select="'t'"/>
+					        <xsl:value-of select="replace($title, '&lt;|&gt;', '')"/>
+					    </xsl:for-each>
                                         </xsl:element>
                                     </xsl:when>
                                     
