@@ -566,7 +566,6 @@
             richtig setzen und unerlaubte Unterfelder
             mappen-->
             <xsl:otherwise>
-                <xsl:variable name="title" select="marc:subfield[@code='t']/text()"/>
                 <xsl:element name="{local-name()}">
                     <xsl:attribute name="tag" select="@tag"/>
                     <xsl:attribute name="ind1" select="'0'"/>
@@ -585,10 +584,8 @@
                     Keine Wegsortierung von Artikeln?-->
                                     <xsl:when test="@code='t'">
 					<xsl:element name="{local-name()}">
-				            <xsl:for-each select="@*">
-                                                <xsl:attribute name="code" select="'t'"/>
-					        <xsl:value-of select="replace($title, '&lt;|&gt;', '')"/>
-					    </xsl:for-each>
+                                            <xsl:attribute name="code" select="'t'"/>
+					    <xsl:value-of select="replace(./text(), '&lt;|&gt;', '')"/>
                                         </xsl:element>
                                     </xsl:when>
                                     
