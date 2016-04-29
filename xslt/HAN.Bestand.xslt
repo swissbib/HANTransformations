@@ -618,7 +618,7 @@
            <xsl:attribute name="tag" select="'541'"/>
            <xsl:attribute name="ind1" select="' '"/>
            <xsl:attribute name="ind2" select="' '"/>
-           <xsl:for-each select="marc:subfield[@code != 'h']">
+           <xsl:for-each select="marc:subfield[@code != 'h' and @code != 'b']">
                <xsl:element name="{local-name()}">
                    <xsl:for-each select="@*">
                        <xsl:copy-of select="."/>
