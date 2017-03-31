@@ -377,10 +377,19 @@
             <!--Schreiben der Unterfelder-->
             <xsl:for-each select="marc:subfield">
                 <xsl:choose>
+
+                    <xsl:when test="matches(@code, 'i|j')">
+                        <xsl:element name="{local-name()}">
+                            <xsl:for-each select="@*">
+                                <xsl:copy-of select="."/>
+                                <xsl:value-of select="replace(../text(), '&lt;|&gt;', '')"/>
+                            </xsl:for-each>
+                        </xsl:element>
+                    </xsl:when>
                     
                     <!--Bei folgenden Unterfeldern sollen die spitzen                    
                     Klammern rausgenommen werden-->
-                    <xsl:when test="matches(@code, 'a|d|i|j|p')">
+                    <xsl:when test="matches(@code, 'a|d|p')">
                         <xsl:element name="{local-name()}">
                             <xsl:for-each select="@*">
                                 <xsl:copy-of select="."/>
@@ -968,6 +977,261 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:when>
+
+            <!--Für Film, Dia-->
+            <xsl:when test="$LDR_06='g'">
+                <xsl:choose>
+
+                    <!--Wenn Dia-->
+                    <xsl:when test="$format_main='VM Diapositiv = Diapositive'">
+                        <xsl:variable name="spec_1" select="'VM02'"/>
+                        <xsl:variable name="spec_2" select="'01'"/>
+                        <xsl:variable name="generic" select="'XM020000'"/>
+                        <xsl:variable name="hierarchy_1" select="'XM02'"/>
+                        <xsl:variable name="hierarchy_2" select="'0000'"/>
+                        <xsl:choose>
+                            <xsl:when test="$format_side=
+                                'CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:when>
+
+                    <!--Wenn Film-->
+                    <xsl:otherwise>
+                        <xsl:variable name="spec_1" select="'VM01'"/>
+                        <xsl:variable name="spec_2" select="'00'"/>
+                        <xsl:variable name="generic" select="'XM010000'"/>
+                        <xsl:variable name="hierarchy_1" select="'XM01'"/>
+                        <xsl:variable name="hierarchy_2" select="'0000'"/>
+                        <xsl:choose>
+
+                            <!--Online-->
+                            <xsl:when test="$format_side='CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:when>
+
+                            <!--Nicht online-->
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:when>
+
+
+            <!--Für Sprachaufnahmen-->
+            <xsl:when test="$LDR_06='i'">
+                <xsl:choose>
+
+                    <!--Wenn Tonband-->
+                    <xsl:when test="$format_main='SR Tonband-Kompaktkassette = Cassette audio'">
+                        <xsl:variable name="spec_1" select="'MU03'"/>
+                        <xsl:variable name="spec_2" select="'06'"/>
+                        <xsl:variable name="generic" select="'XU030000'"/>
+                        <xsl:variable name="hierarchy_1" select="'XU03'"/>
+                        <xsl:variable name="hierarchy_2" select="'0600'"/>
+                        <xsl:choose>
+                            <xsl:when test="$format_side=
+                                'CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:when>
+
+                    <!--Wenn Schallplatte-->
+                    <xsl:when test="$format_main='SR Schallplatte = Disque 78'">
+                        <xsl:variable name="spec_1" select="'MU03'"/>
+                        <xsl:variable name="spec_2" select="'05'"/>
+                        <xsl:variable name="generic" select="'XU030000'"/>
+                        <xsl:variable name="hierarchy_1" select="'XU03'"/>
+                        <xsl:variable name="hierarchy_2" select="'0500'"/>
+                        <xsl:choose>
+                            <xsl:when test="$format_side=
+                                'CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:when>
+
+                    <!--Nicht Tonband oder Schallplatte-->
+                    <xsl:otherwise>
+                        <xsl:variable name="spec_1" select="'MU03'"/>
+                        <xsl:variable name="spec_2" select="'00'"/>
+                        <xsl:variable name="generic" select="'XU030000'"/>
+                        <xsl:variable name="hierarchy_1" select="'XU03'"/>
+                        <xsl:variable name="hierarchy_2" select="'0000'"/>
+                        <xsl:choose>
+
+                            <!--Online-->
+                            <xsl:when test="$format_side='CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:when>
+
+                            <!--Nicht online-->
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:when>
+
+            <!--Für Musikaufnahmen-->
+            <xsl:when test="$LDR_06='j'">
+                <xsl:choose>
+
+                    <!--Wenn Tonband-->
+                    <xsl:when test="$format_main='SR Tonband-Kompaktkassette = Cassette audio'">
+                        <xsl:variable name="spec_1" select="'MU04'"/>
+                        <xsl:variable name="spec_2" select="'06'"/>
+                        <xsl:variable name="generic" select="'XU040000'"/>
+                        <xsl:variable name="hierarchy_1" select="'XU04'"/>
+                        <xsl:variable name="hierarchy_2" select="'0600'"/>
+                        <xsl:choose>
+                            <xsl:when test="$format_side=
+                                'CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:when>
+
+                    <!--Wenn Schallplatte-->
+                    <xsl:when test="$format_main='SR Schallplatte = Disque 78'">
+                        <xsl:variable name="spec_1" select="'MU04'"/>
+                        <xsl:variable name="spec_2" select="'05'"/>
+                        <xsl:variable name="generic" select="'XU030000'"/>
+                        <xsl:variable name="hierarchy_1" select="'XU04'"/>
+                        <xsl:variable name="hierarchy_2" select="'0500'"/>
+                        <xsl:choose>
+                            <xsl:when test="$format_side=
+                                'CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:when>
+
+                    <!--Nicht Tonband oder Schallplatte-->
+                    <xsl:otherwise>
+                        <xsl:variable name="spec_1" select="'MU04'"/>
+                        <xsl:variable name="spec_2" select="'00'"/>
+                        <xsl:variable name="generic" select="'XU040000'"/>
+                        <xsl:variable name="hierarchy_1" select="'XU04'"/>
+                        <xsl:variable name="hierarchy_2" select="'0000'"/>
+                        <xsl:choose>
+
+                            <!--Online-->
+                            <xsl:when test="$format_side='CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:when>
+
+                            <!--Nicht online-->
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:when>
                 
             <!--Für Bestände  -->  
             <xsl:when test="$LDR_06='p'">                
@@ -1018,8 +1282,21 @@
                         </xsl:call-template>
                     <!--</xsl:otherwise>-->
                 <!--</xsl:choose>   -->             
-            </xsl:when>   
-            
+            </xsl:when>
+
+
+            <!--Für Objekte  -->
+            <xsl:when test="$LDR_06='r'">
+                <xsl:variable name="specific" select="'CL010000'"/>
+                <xsl:variable name="generic" select="'XM030000'"/>
+                <xsl:variable name="hierarchy" select="'XM030200'"/>
+                <xsl:call-template name="format_898">
+                    <xsl:with-param name="specific" select="$specific"/>
+                    <xsl:with-param name="generic" select="$generic"/>
+                    <xsl:with-param name="hierarchy" select="$hierarchy"/>
+                </xsl:call-template>
+            </xsl:when>
+
             <!--Für Musikmanuskripte-->
             <xsl:when test="$LDR_06='d'">
                 <xsl:variable name="spec_1" select="'MU02'"/>
@@ -1085,9 +1362,75 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:when>
+
+            <!--Für Musikdrucke-->
+            <xsl:when test="$LDR_06='c'">
+                <xsl:variable name="spec_1" select="'MU01'"/>
+                <xsl:variable name="hierarchy_1" select="'XU01'"/>
+
+                <!--Wenn Partitur-->
+                <xsl:choose>
+                    <xsl:when test="$format_main='PM Partitur = Partition'">
+                        <xsl:variable name="spec_2" select="'01'"/>
+                        <xsl:variable name="generic" select="'XU010100'"/>
+                        <xsl:variable name="hierarchy_2" select="'0100'"/>
+
+                        <!--Wenn online-->
+                        <xsl:choose>
+                            <xsl:when test="$format_side='CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:when>
+
+                            <!--Wenn nicht online-->
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:when>
+
+                    <!--Wenn keine Partitur-->
+                    <xsl:otherwise>
+                        <xsl:variable name="spec_2" select="'00'"/>
+                        <xsl:variable name="generic" select="'XU010000'"/>
+                        <xsl:variable name="hierarchy_2" select="'0000'"/>
+
+                        <!--Wenn online-->
+                        <xsl:choose>
+                            <xsl:when test="$format_side='CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:when>
+
+                            <!--Wenn nicht online-->
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="concat($hierarchy_1, $hierarchy_2)"/>
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:when>
                 
             
-            <!--Für Kartenmaterial-->
+            <!--Für Kartenmaterial - Manuskript-->
             <xsl:when test="$LDR_06='f'">
                 <xsl:variable name="spec_1" select="'MP02'"/>
                 <xsl:variable name="spec_2" select="'00'"/>
@@ -1116,7 +1459,37 @@
                     </xsl:otherwise>
                 </xsl:choose>                
             </xsl:when>
-            
+
+            <!--Für Kartenmaterial - Druck-->
+            <xsl:when test="$LDR_06='e'">
+                <xsl:variable name="spec_1" select="'MP01'"/>
+                <xsl:variable name="spec_2" select="'00'"/>
+                <xsl:variable name="generic" select="'XP010000'"/>
+                <xsl:variable name="hierarchy" select="'XP010000'"/>
+
+                <!--Wenn online-->
+                <xsl:choose>
+                    <xsl:when test="$format_side='CF Elektron. Daten Fernzugriff=Fichier online'">
+                        <xsl:variable name="spec_3" select="'53'"/>
+                        <xsl:call-template name="format_898">
+                            <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                            <xsl:with-param name="generic" select="$generic"/>
+                            <xsl:with-param name="hierarchy" select="$hierarchy"/>
+                        </xsl:call-template>
+                    </xsl:when>
+
+                    <!--Wenn nicht online-->
+                    <xsl:otherwise>
+                        <xsl:variable name="spec_3" select="'00'"/>
+                        <xsl:call-template name="format_898">
+                            <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                            <xsl:with-param name="generic" select="$generic"/>
+                            <xsl:with-param name="hierarchy" select="$hierarchy"/>
+                        </xsl:call-template>
+                    </xsl:otherwise>
+                </xsl:choose>
+            </xsl:when>
+
             <!--Für gedruckte Texte-->
             <xsl:when test="$LDR_06='a'">
                 <xsl:choose> 
