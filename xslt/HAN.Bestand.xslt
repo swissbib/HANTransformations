@@ -378,18 +378,9 @@
             <xsl:for-each select="marc:subfield">
                 <xsl:choose>
 
-                    <xsl:when test="matches(@code, 'i|j')">
-                        <xsl:element name="{local-name()}">
-                            <xsl:for-each select="@*">
-                                <xsl:copy-of select="."/>
-                                <xsl:value-of select="replace(../text(), '&lt;|&gt;', '')"/>
-                            </xsl:for-each>
-                        </xsl:element>
-                    </xsl:when>
-                    
-                    <!--Bei folgenden Unterfeldern sollen die spitzen                    
+                    <!--Bei folgenden Unterfeldern sollen die spitzen
                     Klammern rausgenommen werden-->
-                    <xsl:when test="matches(@code, 'a|d|p')">
+                    <xsl:when test="matches(@code, 'a|d|i|j|p')">
                         <xsl:element name="{local-name()}">
                             <xsl:for-each select="@*">
                                 <xsl:copy-of select="."/>
