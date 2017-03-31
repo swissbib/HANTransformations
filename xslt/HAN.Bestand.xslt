@@ -634,7 +634,7 @@
    <xsl:template name="linking_fields">
        
        <!--Kopieren der Unterfelder ausser $w-->
-       <xsl:for-each select="marc:subfield[@code != 'w']">
+       <xsl:for-each select="marc:subfield[@code != 'w' and @code != 'y']">
            <xsl:element name="{local-name()}">
                <xsl:for-each select="@*">
                    <xsl:copy-of select="."/>
@@ -669,6 +669,14 @@
                <xsl:call-template name="systemnr_link"/>
            </xsl:element> 
        </xsl:if>
+
+       <xsl:if test="marc:subfield[@code='y']">
+           <xsl:element name="subfield">
+               <xsl:attribute name="code" select="'y'"/>
+               <xsl:call-template name="systemnr_link_y"/>
+           </xsl:element>
+       </xsl:if>
+
    </xsl:template>
    
    
@@ -712,7 +720,46 @@
                <xsl:value-of select="concat('HAN', marc:subfield[@code='w']/text())"/>
            </xsl:otherwise>
        </xsl:choose>
-   </xsl:template> 
+   </xsl:template>
+
+    <xsl:template name="systemnr_link_y">
+       <xsl:variable name="sysnr_length" select="string-length(marc:subfield[@code='y']/text())"/>
+
+       <!--Wenn die Systemnr. unter 9 Stellen hat,
+               sollen führende Nullen angehängt werden;
+               es scheint keine Funktion zu geben, die
+               den String '0' mit einem Integer
+               multiplizieren kann-->
+       <xsl:choose>
+           <xsl:when test="$sysnr_length eq 8">
+               <xsl:value-of select="concat('HAN0', marc:subfield[@code='y']/text())"/>
+           </xsl:when>
+           <xsl:when test="$sysnr_length eq 7">
+               <xsl:value-of select="concat('HAN00', marc:subfield[@code='y']/text())"/>
+           </xsl:when>
+           <xsl:when test="$sysnr_length eq 6">
+               <xsl:value-of select="concat('HAN000', marc:subfield[@code='y']/text())"/>
+           </xsl:when>
+           <xsl:when test="$sysnr_length eq 5">
+               <xsl:value-of select="concat('HAN0000', marc:subfield[@code='y']/text())"/>
+           </xsl:when>
+           <xsl:when test="$sysnr_length eq 4">
+               <xsl:value-of select="concat('HAN00000', marc:subfield[@code='y']/text())"/>
+           </xsl:when>
+           <xsl:when test="$sysnr_length eq 3">
+               <xsl:value-of select="concat('HAN000000', marc:subfield[@code='y']/text())"/>
+           </xsl:when>
+           <xsl:when test="$sysnr_length eq 2">
+               <xsl:value-of select="concat('HAN0000000', marc:subfield[@code='y']/text())"/>
+           </xsl:when>
+           <xsl:when test="$sysnr_length eq 1">
+               <xsl:value-of select="concat('HAN00000000', marc:subfield[@code='y']/text())"/>
+           </xsl:when>
+           <xsl:otherwise>
+               <xsl:value-of select="concat('HAN', marc:subfield[@code='y']/text())"/>
+           </xsl:otherwise>
+       </xsl:choose>
+   </xsl:template>
     
     <!-- Template für Feld 856 -->
     <xsl:template name="URL">
