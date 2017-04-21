@@ -316,7 +316,7 @@
     <!--Template für die Verarbeitung von Feld 245 und 240-->
     <xsl:template name="title">
         <xsl:variable name="title" select="marc:subfield[@code='a']/text()"/>
-        <xsl:variable name="{local-name()}">
+        <xsl:element name="{local-name()}">
             <xsl:attribute name="tag" select="@tag"/>
             <xsl:attribute name="ind1">
                 
@@ -380,9 +380,9 @@
             <!--Unterfelder $b aneinanderfügen-->
             <xsl:variable name="titleb">
                 <xsl:for-each select="marc:subfield">
-                    <xsl:when test="matches(@code, 'b|i||j')">
+                    <xsl:if test="matches(@code, 'b|i||j')">
                         <xsl:value-of select="concat(./text(), ' : ')"/>
-                    </xsl:when>
+                    </xsl:if>
                 </xsl:for-each>
             </xsl:variable>
 
