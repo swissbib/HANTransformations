@@ -52,4 +52,7 @@ crashlytics-build.properties
 *.lic
 *.xml
 
+# Nohup log file
+nohup.out
+
 
