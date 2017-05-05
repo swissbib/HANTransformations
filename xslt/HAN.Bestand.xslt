@@ -291,6 +291,14 @@
                 </xsl:element>
             </xsl:when>
             
+            <!-- Sacherschliessungsfelder mit $2resource sollen ersetzt werden durch $2han --> 
+            <xsl:when test="@code='2'">
+                <xsl:element name="{local-name()}">
+                    <xsl:attribute name="code" select="2"/>
+                    <xsl:value-of select="replace(./text(), 'resource', 'han')"/>  
+                </xsl:element>
+            </xsl:when>
+            
             <!-- Alle anderen Unterfelder des Sucheinstiegs unverändert kopieren -->
             <xsl:otherwise>
                 <xsl:element name="{local-name()}">
@@ -342,7 +350,7 @@
                 </xsl:choose>
             </xsl:attribute>
             
-            <!-- Indiaktor 2 -->
+            <!-- Indikator 2 -->
             <xsl:attribute name="ind2">
                 <xsl:choose>
                     
@@ -380,21 +388,39 @@
             <!--Unterfelder $b aneinanderfügen-->
             <xsl:variable name="titleb">
                 <xsl:for-each select="marc:subfield">
-                    <xsl:if test="matches(@code, 'b|i||j')">
+                    <xsl:if test="matches(@code, 'b')">
                         <xsl:value-of select="concat(./text(), ' : ')"/>
                     </xsl:if>
                 </xsl:for-each>
             </xsl:variable>
-
-            <!--Interpunktionen hinten abschneiden-->
-            <xsl:variable name="titleb_content" select="concat($titleb, '++')"/>
-            <xsl:variable name="titleb_sequence" select="substring-before($titleb_content, ', ++')"/>
-
+            
+            <!--Unterfelder $i aneinanderfügen-->
+            <xsl:variable name="titlei">
+                <xsl:for-each select="marc:subfield">
+                    <xsl:if test="matches(@code, 'i')">
+                        <xsl:value-of select="concat(' ; ', ./text())"/>
+                    </xsl:if>
+                </xsl:for-each>
+            </xsl:variable>
+            
+            <!--Unterfelder $j aneinanderfügen-->
+            <xsl:variable name="titlej">
+                <xsl:for-each select="marc:subfield">
+                    <xsl:if test="matches(@code, 'j')">
+                        <xsl:value-of select="concat('. ', ./text())"/>
+                    </xsl:if>
+                </xsl:for-each>
+            </xsl:variable>
+            
+            <!--Unterfelder $bij aneinanderfügen-->
+            <xsl:variable name="titlebij">
+                <xsl:value-of select="replace(concat(replace($titleb, ' : $' ,''), $titlei, $titlej), '^( ; |\. )', '')"/>
+            </xsl:variable>
+    
             <xsl:for-each select="marc:subfield">
                 <xsl:choose>
-                    <!--Bei folgenden Unterfeldern sollen die spitzen
-                    Klammern rausgenommen werden-->
-                    <xsl:when test="matches(@code, 'a|d||p')">
+                    <!--Bei folgenden Unterfeldern sollen die spitzen Klammern rausgenommen werden-->
+                    <xsl:when test="matches(@code, 'a|d|p')">
                         <xsl:element name="{local-name()}">
                             <xsl:for-each select="@*">
                                 <xsl:copy-of select="."/>
@@ -405,13 +431,6 @@
 
                     <!-- Unterfelder $i und $j sind integriert in $b und werden gelöscht-->
                     <xsl:when test="matches(@code, 'b|i|j')"/>
-
-                    <!-- Schreibe Unterfeld $b aufgrund Variable-->
-                    <xsl:when test="matches(@code, 'b')">
-                        <xsl:element name="{local-name()}">
-                            <xsl:attribute name="code" select="'b'"/>
-                        </xsl:element>
-                    </xsl:when>
 
                     <!-- GND-Nr. in $0 -->
                     <xsl:when test="@code='1'">
@@ -433,11 +452,13 @@
                 </xsl:choose>
             </xsl:for-each>
 
-            <!-- Unterfeld $b schreiben  -->
-            <xsl:element name="marc:subfield">
-                <xsl:attribute name="code" select="'b'"/>
-                <xsl:value-of select="$titleb_sequence"/>
-            </xsl:element>
+            <!-- Neu konstruiertes Unterfeld $b schreiben, falls nicht leer  -->
+            <xsl:if test="$titlebij != ''">
+                <xsl:element name="subfield">
+                    <xsl:attribute name="code" select="'b'"/>
+                    <xsl:value-of select="$titlebij"/>
+                </xsl:element>
+            </xsl:if>
 
         </xsl:element>
     </xsl:template>
@@ -820,38 +841,15 @@
     <xsl:template name="subject">
         <xsl:choose>
             
-
-            <!-- Wenn es sich um 6xx-Felder mit $2resource handelt, Inhalt in 690 schreiben mit Herkunft
-            und ursprünglichen Indikatoren in $2-->
+            <!-- Wenn es sich um 6xx-Felder mit $2resource handelt, Inhalt in 690 schreiben-->
             <xsl:when test="marc:subfield[@code='2']/text() = 'resource'">
                 <xsl:element name="{local-name()}">
                     <xsl:attribute name="tag" select="'690'"/>
                     <xsl:attribute name="ind1" select="' '"/>
                     <xsl:attribute name="ind2" select="'7'"/>
-                    <xsl:variable name="resource_com">
-                        <xsl:for-each select="marc:subfield">
-                            <xsl:choose>
-                                <xsl:when test="@code='2'"></xsl:when>
-                                <xsl:otherwise>
-                                    <xsl:value-of select="concat(./text(), ', ')"/>
-                                </xsl:otherwise>
-                            </xsl:choose>
-                        </xsl:for-each>
-                    </xsl:variable>
-
-                    <!--Komma hinten abschneiden-->
-                    <xsl:variable name="recource_content" select="concat($resource_com, '++')"/>
-                    <xsl:variable name="recource_sequence" select="substring-before($recource_content, ', ++')"/>
-
-                    <!--Inhalt in Unterfeld a schreiben-->
-                    <xsl:element name="subfield">
-                        <xsl:attribute name="code" select="'a'"/>
-                        <xsl:value-of select="$recource_sequence"/>
-                    </xsl:element>
-                    <xsl:element name="subfield">
-                        <xsl:attribute name="code" select="'2'"/>
-                        <xsl:text>han</xsl:text>
-                    </xsl:element>
+                    <xsl:for-each select="marc:subfield">
+                        <xsl:call-template name="heading_subfields"/>
+                    </xsl:for-each>                       
                 </xsl:element>
             </xsl:when>
 
@@ -1741,10 +1739,10 @@
             <xsl:element name="subfield">
                 <xsl:attribute name="code" select="'a'"/>
                 <xsl:if test="@ind1='A'">
-                    <xsl:value-of select="concat('Alternative Signatur: [', marc:subfield[@code='n']/text(), ' ', marc:subfield[@code='a']/text(), ' ' , marc:subfield[@code='b']/text(), ': ', marc:subfield[@code='p']/text())"/>
+                    <xsl:value-of select="concat('Alternative Signatur: [', marc:subfield[@code='n']/text(), ' ', marc:subfield[@code='a']/text(), ' ' , marc:subfield[@code='b']/text(), ': ', marc:subfield[@code='p']/text(),']')"/>
                 </xsl:if>
                 <xsl:if test="@ind1='E'">
-                    <xsl:value-of select="concat('Ehemalige Signatur: [', marc:subfield[@code='n']/text(), ' ', marc:subfield[@code='a']/text(), ' ' , marc:subfield[@code='b']/text(), ': ', marc:subfield[@code='p']/text())"/>
+                    <xsl:value-of select="concat('Ehemalige Signatur: [', marc:subfield[@code='n']/text(), ' ', marc:subfield[@code='a']/text(), ' ' , marc:subfield[@code='b']/text(), ': ', marc:subfield[@code='p']/text(),']')"/>
                 </xsl:if>
             </xsl:element>
         </xsl:element>
