@@ -52,7 +52,6 @@ crashlytics-build.properties
 *.lic
 *.xml
 *.seq
-raw.hanseq/dsv05.seq
 
 # Nohup log file
 nohup.out
