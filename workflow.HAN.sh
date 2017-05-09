@@ -1,9 +1,22 @@
-#!/bin/sh
+#!/bin/bash
 
 # Script that controls the main workflow
 
 basedir=$PWD
 
-$basedir/transform.han2sbmarc.sh $basedir HAN
-#$basedir/remove.marc.namespaces.sh $basedir
+DO_CATMANDU=1
+DO_XSLT=1
+DO_FINISH=1
+
+if [ "$DO_CATMANDU" == "1" ]; then
+    echo "Transforming Aleph-Sequential into HAN-Marc"
+    perl transform.seq2hanmarc.pl $basedir/raw.hanseq/dsv05.seq $basedir/raw.hanmarc/gruen.xml $basedir/raw.hanmarc/orange.xml
+fi
+
+if [ "$DO_XSLT" == "1" ]; then
+$basedir/transform.han2sbmarc.sh $basedir HAN 
+fi
+
+if [ "$DO_FINISH" == "1" ]; then
 $basedir/transform.into.1.line.sh $basedir
+fi

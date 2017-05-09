@@ -17,7 +17,7 @@ for datei in $inputdir/*.xml
 do
 
 	echo "file: "$datei
-	java -Xms8024m -Xmx8024m  -cp $cp  net.sf.saxon.Transform -s:$datei -xsl:$xslt -o:$outputdir/$output$nr.xml
+	java -Xms8024m -Xmx8024m  -cp $cp  net.sf.saxon.Transform -s:$datei -xsl:$xslt -o:$outputdir/`basename "$datei" .xml`_marcxml.xml
 	nr=$(($nr+1))
 
 done
