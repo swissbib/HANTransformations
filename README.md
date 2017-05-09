@@ -7,7 +7,7 @@ The following scripts need to be saved in the HANTransformations root directory:
  * transform.seq2hanmarc.pl (step 1)
  * transform.han2sbmarc.sh (step 2)
  * transform.into.1.line.sh (step 3)
-* transform.into.1.line.pl: perl script to flatten the records into one line (called by step 2)
+* transform.into.1.line.pl: perl script to flatten the records into one line (called by step 3)
 
 The Perl-script transform.seq2hanmarc.pl need Perl modules of the Catmandu project (can be installed using cpan).
 
