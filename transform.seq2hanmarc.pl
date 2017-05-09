@@ -102,7 +102,7 @@ $importer2->each(sub {
     }
     
     # Remove records with hide_this codes or specific archival levels 
-    unless (($f909f{$sysnum} =~ /hide\_this/) ||($f351c{$sysnum} =~ /(Hauptabteilung|Abteilung|Bestand)/)) {
+    unless (($f909f{$sysnum} =~ /hide\_this/) ||($f351c{$sysnum} =~ /(Hauptabteilung|Abteilung)/)) {
         if ($f852a{$sysnum} =~ /(Basel|Bern)/) {
             # Add records for swissbib orange
             $exporter2->add($data);
