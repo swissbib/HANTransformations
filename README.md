@@ -1,5 +1,5 @@
 # HANTransformations
-Transformations (Catmandu, XSLT) and basic workflow scripts to prepare HAN-data for indexing in swissbib
+Transformations (Catmandu, XSLT) and basic workflow scripts to prepare HAN-data for indexing in swissbib. For further documentation see http://www.swissbib.org/wiki/index.php?title=Staff:Indexierung_Archivdaten
 
 ## Installation
 The following scripts need to be saved in the HANTransformations root directory:
