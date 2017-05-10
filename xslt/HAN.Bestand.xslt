@@ -1385,7 +1385,7 @@
 
             <!--Für Objekte  -->
             <xsl:when test="$LDR_06='r'">
-                <xsl:variable name="specific" select="'CL010000'"/>
+                <xsl:variable name="specific" select="'VM040000'"/>
                 <xsl:variable name="generic" select="'XM030000'"/>
                 <xsl:variable name="hierarchy" select="'XM030200'"/>
                 <xsl:call-template name="format_898">
