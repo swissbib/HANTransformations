@@ -1773,7 +1773,7 @@
                     </xsl:element>
                     
                     <!-- In die Unterfelder F und b soll der Code für die jeweilige Institution 
-            geschrieben werden (dopelt)-->
+            geschrieben werden (doppelt)-->
                     <xsl:element name="subfield">
                         <xsl:attribute name="code" select="'F'"/>
                         <xsl:choose>
@@ -1789,11 +1789,20 @@
                             <xsl:when test="$inst_code='Bern UB Medizingeschichte: Rorschach-Archiv'">
                                 <xsl:text>HAN001</xsl:text>
                             </xsl:when>
+                            <xsl:when test="$inst_code='Bern UB Schweizerische Osteuropabibliothek'">
+                                <xsl:text>B415</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Bern UB Archives REBUS'">
+                                <xsl:text>B400</xsl:text>
+                            </xsl:when>
                             <xsl:when test="$inst_code='Luzern ZHB'">
                                 <xsl:text>LUZHB</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='KB Appenzell Ausserrhoden'">
                                 <xsl:text>SGARK</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='KB Thurgau'">
+                                <xsl:text>KBTG</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='St. Gallen KB Vadiana'">
                                 <xsl:text>SGKBV</xsl:text>
@@ -1802,7 +1811,7 @@
                                 <xsl:text>SGSTI</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='Solothurn ZB'">
-                                <xsl:text>ZBSO</xsl:text>
+                                <xsl:text>A150</xsl:text>
                             </xsl:when>
                             <xsl:otherwise/>
                         </xsl:choose>
@@ -1823,11 +1832,20 @@
                             <xsl:when test="$inst_code='Bern UB Medizingeschichte: Rorschach-Archiv'">
                                 <xsl:text>HAN001</xsl:text>
                             </xsl:when>
+                            <xsl:when test="$inst_code='Bern UB Archives REBUS'">
+                                <xsl:text>B400</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Bern UB Schweizerische Osteuropabibliothek'">
+                                <xsl:text>B415</xsl:text>
+                            </xsl:when>
                             <xsl:when test="$inst_code='Luzern ZHB'">
                                 <xsl:text>LUZHB</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='KB Appenzell Ausserrhoden'">
                                 <xsl:text>SGARK</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='KB Thurgau'">
+                                <xsl:text>KBTG</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='St. Gallen KB Vadiana'">
                                 <xsl:text>SGKBV</xsl:text>
@@ -1836,7 +1854,7 @@
                                 <xsl:text>SGSTI</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='Solothurn ZB'">
-                                <xsl:text>ZBSO</xsl:text>
+                                <xsl:text>A150</xsl:text>
                             </xsl:when>
                             <xsl:otherwise/>
                         </xsl:choose>
