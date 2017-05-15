@@ -35,6 +35,7 @@ my $logfile = './institution_notvalid.log';
 open(my $log, '>:encoding(UTF-8)', $logfile) or die "Could not open file '$logfile' $!";
 
 # Hashes for storing data
+my %f008;
 my %f245a;
 my %f351c;
 my %f490w;
@@ -50,6 +51,7 @@ $importer1->each(sub {
     my $data = $_[0];
     my $sysnum = $data->{'_id'};
 
+    my $f008  = marc_map($data, '008');
     my $f245a = marc_map($data, '245a');
     my $f351c = marc_map($data, '351c');
     my $f490i = marc_map($data, '490i');
@@ -70,6 +72,7 @@ $importer1->each(sub {
         $f490w = sprintf("%09d", $f490w);
     }
 
+    $f008{$sysnum}  = $f008;
     $f245a{$sysnum} = $f245a;
     $f351c{$sysnum} = $f351c;
     $f490w{$sysnum} = $f490w;
@@ -93,6 +96,17 @@ $importer2->each(sub {
     # Insert system number in field 001
     my $sysnum = $data->{'_id'};
     $data = marc_add($data, '001', a => $sysnum);
+
+    # Replace all random characters in the 008 date fields with "u"
+    unless (substr($f008{$sysnum},7,4)  =~ /[0-2][0-9]{3}/) { substr($f008{$sysnum},7,4) = 'uuuu' }
+    unless (substr($f008{$sysnum},11,4) =~ /[0-2][0-9]{3}/) { substr($f008{$sysnum},11,4) = 'uuuu' } 
+
+    my $record = $data->{'record'};
+    for my $var (@$record) {
+       if ($var->[0] eq '008') {
+           $var->[4] = $f008{$sysnum}
+       }
+    }
 
     # Remove existing fields 490 and 773
     $data = marc_remove($data, '490');
