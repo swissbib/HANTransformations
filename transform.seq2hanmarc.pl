@@ -2,7 +2,6 @@
 
 use strict;
 use warnings;
-no warnings 'uninitialized';
 
 # Data::Dumper for debugging
 use Data::Dumper;
@@ -31,6 +30,10 @@ my $exporter1 = Catmandu::Exporter::MARC->new(file => $ARGV[1], type => "XML", p
 # Exporter for output for swissbib orange (only Basel Bern)
 my $exporter2 = Catmandu::Exporter::MARC->new(file => $ARGV[2], type => "XML", pretty => '1');
 
+# Log-file for not valid institutions in 852$a
+my $logfile = './institution_notvalid.log';
+open(my $log, '>:encoding(UTF-8)', $logfile) or die "Could not open file '$logfile' $!";
+
 # Hashes for storing data
 my %f245a;
 my %f351c;
@@ -52,14 +55,15 @@ $importer1->each(sub {
     my $f490i = marc_map($data, '490i');
     my $f490v = marc_map($data, '490v');
     my $f490w = marc_map($data, '490w');
-    my $f852a = marc_map($data, '852a');
+    # 852 can be repeated, therefore we read it into an array and use only the first array element.
+    my @f852a = marc_map($data, '852[  ]a');
     my $f907g = marc_map($data, '907g');
     my $f909f = marc_map($data, '909f');
 
     # If field 490 not present, use field 773
-    $f490i = marc_map($data, '773j') unless $f490i;
-    $f490v = marc_map($data, '773g') unless $f490v;
-    $f490w = marc_map($data, '773w') unless $f490w;
+    $f490i = marc_map($data, '773j') if $f490i eq "";
+    $f490v = marc_map($data, '773g') if $f490v eq "";
+    $f490w = marc_map($data, '773w') if $f490w eq "";
 
     # Insert leading zeros for system numbers
     if ($f490w) {
@@ -71,7 +75,7 @@ $importer1->each(sub {
     $f490w{$sysnum} = $f490w;
     $f490i{$sysnum} = $f490i;
     $f490v{$sysnum} = $f490v;
-    $f852a{$sysnum} = $f852a;
+    $f852a{$sysnum} = $f852a[0];
     $f907g{$sysnum} = $f907g;
     $f909f{$sysnum} = $f909f;
 
@@ -100,17 +104,19 @@ $importer2->each(sub {
         my ($topid, $toptitle) = addparents($parent);
         $data = marc_add($data, '490', a => $f245a{$parent}, v => $f490v{$sysnum}, i => $f490i{$sysnum}, w => $f490w{$sysnum}, x => $toptitle, y => $topid);
     }
-    
+
     # Remove records with hide_this codes or specific archival levels 
-    unless (($f909f{$sysnum} =~ /hide\_this/) ||($f351c{$sysnum} =~ /(Hauptabteilung|Abteilung)/)) {
-        if ($f852a{$sysnum} =~ /(Basel|Bern)/) {
+    unless (( defined $f909f{$sysnum} && $f909f{$sysnum}  =~ /hide\_this/) ||( defined $f351c{$sysnum} && $f351c{$sysnum} =~ /(Hauptabteilung|Abteilung)/)) {
+        if ($f852a{$sysnum} =~ /(^Basel UB$|^Basel UB Wirtschaft - SWA$|^Bern Gosteli-Archiv$|^Bern UB Medizingeschichte: Rorschach-Archiv$|^Bern UB Schweizerische Osteuropabibliothek$|^Bern UB Archives REBUS$)/) {
             # Add records for swissbib orange
             $exporter2->add($data);
             $orange += 1;
-        } else {
+        } elsif ($f852a{$sysnum} =~ /(^KB Appenzell Ausserrhoden$|^KB Thurgau$|^Luzern ZHB$|^Solothurn ZB$|^St. Gallen KB Vadiana$|^St. Gallen Stiftsbibliothek$)/) {
             # Add records for swissbib green (everything except orange)
             $exporter1->add($data);
             $gruen += 1;
+        } else {
+            print $log "Not a HAN-Institution: $f852a{$sysnum} ($sysnum) \n";
         }
     }
 });
@@ -134,7 +140,7 @@ sub addparents{
 
         my $parent = $f490w{$sysnum};
 
-        unless ($f351c{$sysnum} =~ /(Abteilung|Hauptabteilung|Bestand)/) {
+        unless (defined $f351c{$sysnum} && $f351c{$sysnum} =~ /(Abteilung|Hauptabteilung|Bestand)/) {
             ($topid, $toptitle) = addparents($parent);
         }
     }
