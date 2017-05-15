@@ -11,7 +11,7 @@ DO_FINISH=0
 
 if [ "$DO_DOWNLOAD" == "1" ]; then
    echo "Downloading Aleph-Sequential"
-   $basedir/download-dsv05-sequential.sh
+   $basedir/download.dsv05.sequential.sh
    mv $basedir/dsv05.seq $basedir/raw.hanseq/
 fi
 

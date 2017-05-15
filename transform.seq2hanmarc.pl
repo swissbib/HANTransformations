@@ -130,19 +130,12 @@ exit;
 sub addparents{
     my $sysnum = $_[0];
 
-    my $toptitle;
-    my $topid;
+    my $topid = $sysnum;
+    my $toptitle = $f245a{$sysnum};
+    my $parent = $f490w{$sysnum};
 
-    if ($sysnum && ($sysnum != '000000000')) {
-
-        $topid = $sysnum;
-        $toptitle = $f245a{$sysnum};
-
-        my $parent = $f490w{$sysnum};
-
-        unless (defined $f351c{$sysnum} && $f351c{$sysnum} =~ /(Abteilung|Hauptabteilung|Bestand)/) {
-            ($topid, $toptitle) = addparents($parent);
-        }
+    unless (($f351c{$sysnum} =~ /(Abteilung|Hauptabteilung|Bestand)/) || !($f490w{$sysnum})) {
+        ($topid, $toptitle) = addparents($parent);
     }
     return ($topid, $toptitle);
 };
