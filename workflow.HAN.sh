@@ -4,10 +4,10 @@
 
 basedir=$PWD
 
-DO_DOWNLOAD=0
+DO_DOWNLOAD=1
 DO_CATMANDU=1
-DO_XSLT=0
-DO_FINISH=0
+DO_XSLT=1
+DO_FINISH=1
 
 if [ "$DO_DOWNLOAD" == "1" ]; then
    echo "Downloading Aleph-Sequential"

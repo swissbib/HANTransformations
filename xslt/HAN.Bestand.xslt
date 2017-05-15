@@ -255,11 +255,11 @@
                                 <!-- Nachname in $a, Vorname in $D -->
                                 <xsl:element name="subfield">
                                     <xsl:attribute name="code" select="'a'"/>
-                                    <xsl:value-of select="$surname"/>
+                                    <xsl:value-of select="replace($surname, '&lt;|&gt;', '')"/>  
                                 </xsl:element>
                                 <xsl:element name="subfield">
                                     <xsl:attribute name="code" select="'D'"/>
-                                    <xsl:value-of select="$forename"/>
+                                    <xsl:value-of select="replace($forename, '&lt;|&gt;', '')"/>  
                                 </xsl:element>
                             </xsl:when>
                             
@@ -267,7 +267,7 @@
                             <xsl:otherwise>
                                 <xsl:element name="{local-name()}">
                                     <xsl:attribute name="code" select="'a'"/>
-                                    <xsl:value-of select="./text()"/>
+                                    <xsl:value-of select="replace(./text(), '&lt;|&gt;', '')"/>  
                                 </xsl:element>
                             </xsl:otherwise>                                           
                             
@@ -278,7 +278,7 @@
                     <xsl:otherwise>
                         <xsl:element name="{local-name()}">
                             <xsl:attribute name="code" select="'a'"/>
-                            <xsl:value-of select="./text()"/>
+                            <xsl:value-of select="replace(./text(), '&lt;|&gt;', '')"/>  
                         </xsl:element>
                     </xsl:otherwise>   
                 </xsl:choose>                                
@@ -690,7 +690,7 @@
                <xsl:for-each select="@*">
                    <xsl:copy-of select="."/>
                    <xsl:choose>
-                       <xsl:when test="..[@code='t']">
+                       <xsl:when test="..[@code='a']">
                            <xsl:value-of select="replace(../text(), '&lt;|&gt;', '')"/>  
                        </xsl:when>
                        <xsl:otherwise>
