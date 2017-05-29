@@ -53,9 +53,11 @@ crashlytics-build.properties
 *.xml
 *.seq
 *.log
-han_transformations.conf
 
 # Nohup log file
 nohup.out
+
+# Conf file
+*.conf
 
 
