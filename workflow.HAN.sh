@@ -4,7 +4,6 @@
 
 source ./han_transformations.conf
 
-
 DO_DOWNLOAD=0
 DO_CATMANDU=0
 DO_XSLT=0
