@@ -38,6 +38,7 @@ open(my $log, '>:encoding(UTF-8)', $logfile) or die "Could not open file '$logfi
 my %f008;
 my %f245a;
 my %f351c;
+my %f490a;
 my %f490w;
 my %f490i;
 my %f490v;
@@ -54,6 +55,7 @@ $importer1->each(sub {
     my $f008  = marc_map($data, '008');
     my $f245a = marc_map($data, '245a');
     my $f351c = marc_map($data, '351c');
+    my $f490a = marc_map($data, '490a');
     my $f490i = marc_map($data, '490i');
     my $f490v = marc_map($data, '490v');
     my $f490w = marc_map($data, '490w');
@@ -63,6 +65,7 @@ $importer1->each(sub {
     my $f909f = marc_map($data, '909f');
 
     # If field 490 not present, use field 773
+    $f490a = marc_map($data, '773a') if $f490a eq "";
     $f490i = marc_map($data, '773j') if $f490i eq "";
     $f490v = marc_map($data, '773g') if $f490v eq "";
     $f490w = marc_map($data, '773w') if $f490w eq "";
@@ -113,8 +116,13 @@ $importer2->each(sub {
     $data = marc_remove($data, '773');
 
     # Modify and insert new field 490
-    unless ($f351c{$sysnum} =~ /(Hauptabteilung|Abteilung|Bestand)/) {
-        my $parent = $f490w{$sysnum};
+    my $parent = $f490w{$sysnum};
+
+    if ($f351c{$parent} =~ /(Hauptabteilung|Abteilung)/) {
+        $data = marc_add($data, '490', a => $f245a{$parent}, v => $f490v{$sysnum}, i => $f490i{$sysnum});
+    } elsif (!($f490w{$sysnum})) {
+        $data = marc_add($data, '490', a => $f490a{$sysnum}, v => $f490v{$sysnum}, i => $f490i{$sysnum});
+    } else {
         my ($topid, $toptitle) = addparents($parent);
         $data = marc_add($data, '490', a => $f245a{$parent}, v => $f490v{$sysnum}, i => $f490i{$sysnum}, w => $f490w{$sysnum}, x => $toptitle, y => $topid);
     }
@@ -148,7 +156,7 @@ sub addparents{
     my $toptitle = $f245a{$sysnum};
     my $parent = $f490w{$sysnum};
 
-    unless (($f351c{$sysnum} =~ /(Abteilung|Hauptabteilung|Bestand)/) || !($f490w{$sysnum})) {
+    unless (($f351c{$parent} =~ /(Hauptabteilung|Abteilung)/) || !($f490w{$sysnum})) {
         ($topid, $toptitle) = addparents($parent);
     }
     return ($topid, $toptitle);
