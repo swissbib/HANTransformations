@@ -38,6 +38,8 @@ fi
 
 if [ "$DO_UPLOAD" == "1" ]; then
     echo "Uploading files to swissbib-Server" >> $LOG
+    scp $BASEDIR/out.swissbib-MARC-1line/gruen_marcxml.format.xml swissbib@sb-us9.swissbib.unibas.ch:/swissbib_index/solrDocumentProcessing/FrequentInitialPreProcessing/data/format_archivaldata/
+    scp $BASEDIR/out.swissbib-MARC-1line/orange_marcxml.format.xml swissbib@sb-us9.swissbib.unibas.ch:/swissbib_index/solrDocumentProcessing/FrequentInitialPreProcessing/data/format_archivaldata/
 fi
 
 if [ "$DO_EMAIL" == "1" ]; then
