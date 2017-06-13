@@ -4,17 +4,16 @@
 
 source ./han_transformations.conf
 
-DO_DOWNLOAD=0
-DO_CATMANDU=0
-DO_XSLT=0
-DO_FINISH=0
-DO_UPLOAD=0
+DO_DOWNLOAD=1
+DO_CATMANDU=1
+DO_XSLT=1
+DO_FINISH=1
+DO_UPLOAD=1
 DO_EMAIL=1
 
 DATE=`date +%Y%m%d`
-BASEDIR=$PWD
-LOG=$PWD/log/han_transformations_$DATE.log
-INFOMAIL=$PWD/han_transformations_infomail.txt
+LOG=$BASEDIR/log/han_transformations_$DATE.log
+INFOMAIL=$BASEDIR/han_transformations_infomail.txt
 
 if [ "$DO_DOWNLOAD" == "1" ]; then
    echo "Downloading Aleph-Sequential" >> $LOG
