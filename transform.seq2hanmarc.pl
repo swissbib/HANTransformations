@@ -93,7 +93,6 @@ my $orange = 0;
 
 # Second importer: Modify records
 $importer2->each(sub {
-    $all += 1;
     my $data = $_[0];
     
     # Insert system number in field 001
@@ -133,10 +132,12 @@ $importer2->each(sub {
             # Add records for swissbib orange
             $exporter2->add($data);
             $orange += 1;
+            $all += 1;
         } elsif ($f852a{$sysnum} =~ /(^KB Appenzell Ausserrhoden$|^KB Thurgau$|^Luzern ZHB$|^St. Gallen KB Vadiana$|^St. Gallen Stiftsbibliothek$)/) {
             # Add records for swissbib green (everything except orange)
             $exporter1->add($data);
             $gruen += 1;
+            $all += 1;
         } else {
             print $log "Not a HAN-Institution: $f852a{$sysnum} ($sysnum) \n";
         }
