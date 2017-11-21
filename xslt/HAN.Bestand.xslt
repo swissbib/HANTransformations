@@ -1742,7 +1742,7 @@
                                 <xsl:text>A150</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='Zofingen SB'">
-                                <xsl:text>SBZF</xsl:text>
+                                <xsl:text>SBZ</xsl:text>
                             </xsl:when>
                             <xsl:otherwise/>
                         </xsl:choose>
@@ -1776,7 +1776,7 @@
                                 <xsl:text>SGARK</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='KB Thurgau'">
-                                <xsl:text>KBTG</xsl:text>
+                                <xsl:text>KBS</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='St. Gallen KB Vadiana'">
                                 <xsl:text>SGKBV</xsl:text>
@@ -1788,7 +1788,7 @@
                                 <xsl:text>A150</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='Zofingen SB'">
-                                <xsl:text>SBZF</xsl:text>
+                                <xsl:text>SBZ</xsl:text>
                             </xsl:when>
                             <xsl:otherwise/>
                         </xsl:choose>
