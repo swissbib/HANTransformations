@@ -1730,7 +1730,7 @@
                                 <xsl:text>SGARK</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='KB Thurgau'">
-                                <xsl:text>KBTG</xsl:text>
+                                <xsl:text>KBS</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='St. Gallen KB Vadiana'">
                                 <xsl:text>SGKBV</xsl:text>
