@@ -491,7 +491,7 @@
                    <xsl:value-of select="concat('Musik: ', marc:subfield[@code='a']/text())"/>
                </xsl:when>
             
-                <!-Wenn es ein reguläres Feld 500 ist, einfach kopieren-->
+                <!-- Wenn es ein reguläres Feld 500 ist, einfach kopieren-->
                 <xsl:otherwise>
                     <xsl:value-of select="marc:subfield[@code='a']/text()"/>
                 </xsl:otherwise>
