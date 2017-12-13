@@ -463,41 +463,45 @@
                 <xsl:when test="@tag='592'">
                     <xsl:for-each select="marc:subfield">
                         <xsl:if test="matches(@code, 'a')">
-                            <xsl:value-of select="concat('Beschreibstoff: ', .)"/>
+                            <xsl:value-of select="concat('. Beschreibstoff: ', .)"/>
                         </xsl:if>
                         <xsl:if test="matches(@code, 'b')">
-                            <xsl:value-of select="concat('Lagen: ', .)"/>
+                            <xsl:value-of select="concat('. Lagen: ', .)"/>
                         </xsl:if>
                         <xsl:if test="matches(@code, 'c')">
-                            <xsl:value-of select="concat('Zählungen: ', .)"/>
+                            <xsl:value-of select="concat('. Zählungen: ', .)"/>
                         </xsl:if>
                     </xsl:for-each>
                 </xsl:when>
                 <xsl:when test="@tag='593'">
                     <xsl:for-each select="marc:subfield">
                         <xsl:if test="matches(@code, 'a')">
-                            <xsl:value-of select="concat('Rubrifizierungen: ', .)"/>
+                            <xsl:value-of select="concat('. Rubrifizierungen: ', .)"/>
                         </xsl:if>
                         <xsl:if test="matches(@code, 'b')">
-                           <xsl:value-of select="concat('Initialen: ', .)"/>
+                           <xsl:value-of select="concat('. Initialen: ', .)"/>
                        </xsl:if>
                        <xsl:if test="matches(@code, 'c')">
-                           <xsl:value-of select="concat('Miniaturen/Zeichnungen: ', .)"/>
+                           <xsl:value-of select="concat('. Miniaturen/Zeichnungen: ', .)"/>
                        </xsl:if>
                        <xsl:if test="matches(@code, 'd')">
-                           <xsl:value-of select="concat('Einrichtung: ', .)"/>
+                           <xsl:value-of select="concat('. Einrichtung: ', .)"/>
                        </xsl:if>
                        <xsl:if test="matches(@code, 'e')">
-                           <xsl:value-of select="concat('Schrift: ', .)"/>
+                           <xsl:value-of select="concat('. Schrift: ', .)"/>
                        </xsl:if>
                        <xsl:if test="matches(@code, 'f')">
-                           <xsl:value-of select="concat('Zusätze: ', .)"/>
+                           <xsl:value-of select="concat('. Zusätze: ', .)"/>
                        </xsl:if>
                    </xsl:for-each>
                </xsl:when>
            
                <xsl:when test="@tag='594'">
-                   <xsl:value-of select="concat('Musik: ', marc:subfield[@code='a']/text())"/>
+                    <xsl:for-each select="marc:subfield">
+                       <xsl:if test="matches(@code, 'a')">
+                           <xsl:value-of select="concat('. Musik: ', .)"/>
+                       </xsl:if>
+                   </xsl:for-each>
                </xsl:when>
             
                 <!-- Wenn es ein reguläres Feld 500 ist, einfach kopieren-->
@@ -506,7 +510,15 @@
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-  
+        
+        <xsl:variable name="f500a2">
+            <xsl:value-of select='replace($f500a, "^\. ", "")'/>
+        </xsl:variable>
+        
+        <xsl:variable name="f500a3">
+            <xsl:value-of select='replace($f500a2, "\.\. ", ". ")'/>
+        </xsl:variable>
+
         <xsl:element name="{local-name()}">
             <xsl:attribute name="tag" select="'500'"/>
             <xsl:attribute name="ind1">
@@ -517,7 +529,7 @@
             </xsl:attribute>
             <xsl:element name="subfield">
                 <xsl:attribute name="code" select="'a'"/>
-                <xsl:value-of select = "$f500a"/>
+                <xsl:value-of select = "$f500a3"/>
             </xsl:element>
                 
             <!--Unterfeld $3, falls vorhanden, kopieren-->
@@ -567,9 +579,7 @@
                         <xsl:choose>
                             <xsl:when test="matches(@code, 'g|t|r|u|6|8')">
                                 <xsl:choose>
-                                    <!--Bei Unterfeld t sollen die spitzen                    
-                    Klammern rausgenommen werden.
-                    Keine Wegsortierung von Artikeln?-->
+                                    <!--Bei Unterfeld t sollen die spitzen Klammern rausgenommen werden. Keine Wegsortierung von Artikeln?-->
                                     <xsl:when test="@code='t'">
 					<xsl:element name="{local-name()}">
                                             <xsl:attribute name="code" select="'t'"/>
