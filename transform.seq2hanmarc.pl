@@ -133,7 +133,7 @@ $importer2->each(sub {
             $exporter2->add($data);
             $orange += 1;
             $all += 1;
-        } elsif ($f852a{$sysnum} =~ /(^KB Appenzell Ausserrhoden$|^KB Thurgau$|^Luzern ZHB$|^St. Gallen KB Vadiana$|^St. Gallen Stiftsbibliothek$)/) {
+        } elsif ($f852a{$sysnum} =~ /(^KB Appenzell Ausserrhoden$|^KB Thurgau$|^Luzern ZHB$|^St. Gallen KB Vadiana$|^St. Gallen Stiftsbibliothek$|^Zofingen SB$)/) {
             # Add records for swissbib green (everything except orange)
             $exporter1->add($data);
             $gruen += 1;

@@ -16,6 +16,7 @@
          * verarbeitet alle HANMarc-Felder
          * Version 1 (20.08.2015/awi)
          * Version 2 (21.04.2017/bmt)
+         * Version 3 (20.11.2017/bmt)
          ***************************************
     -->
     
@@ -79,7 +80,6 @@
     <xsl:template match="marc:datafield">
         <xsl:for-each select="."> 
             <xsl:choose>
-                <xsl:when test="@tag='019'"/>
                 <!--Nach Feld 024 soll Feld 035
                 eingefügt werden-->
                 <xsl:when test="@tag='024'">
@@ -87,21 +87,20 @@
                     <xsl:call-template name="HAN_link"/>
                 </xsl:when>
                 <xsl:when test="@tag='090'"/> 
-                <xsl:when test="@tag='091'"/> 
-                <xsl:when test="@tag='092'"/>
                 <xsl:when test="matches(@tag, '[17][0135][012]')">
                     <xsl:call-template name="copy_datafields">
                         <xsl:with-param name="copy_mode" select="'heading'"/>
                     </xsl:call-template>                       
                 </xsl:when>
-                <xsl:when test="matches(@tag, '24[06]')">
+                <xsl:when test="@tag='240'"/> 
+                <xsl:when test="@tag='246'">
                     <xsl:call-template name="title"/>
                 </xsl:when>
                 <xsl:when test="@tag='245'">
                     <xsl:call-template name="title" />
                     <xsl:call-template name="copied_info"/>
                 </xsl:when>
-                <xsl:when test="matches(@tag, '351')">
+                <xsl:when test="@tag='351'">
                     <xsl:call-template name="level" />
                 </xsl:when>
                 
@@ -132,7 +131,7 @@
                         <xsl:call-template name="linking_fields"/> 
                     </xsl:element>                    
                 </xsl:when>
-                <xsl:when test="@tag='500'">
+                <xsl:when test="@tag='500' or @tag='592' or @tag='593' or @tag='594'">
                     <xsl:call-template name="footnotes"/>
                 </xsl:when>
                 <xsl:when test="@tag='505'">                    
@@ -141,8 +140,17 @@
                 <xsl:when test="@tag='541'">
                     <xsl:call-template name="acquisition"/>
                 </xsl:when>  
+                <xsl:when test="@tag='542'">
+                    <!-- Einkommentieren wenn CC-Vermerk in Feld 990 geklärt
+                    <xsl:choose>
+                        <xsl:when test="@ind2='1'">
+                            <xsl:call-template name="copyright"/>
+                        </xsl:when>
+                        <xsl:otherwise/>
+                    </xsl:choose>
+                    -->
+                </xsl:when>
                 <xsl:when test="@tag='583'"/>
-                <xsl:when test="@tag='593'"/>  
                 <xsl:when test="@tag='596'"/> 
                 <xsl:when test="@tag='597'"/> 
                 <xsl:when test="matches(@tag, '6[01359][015]')">
@@ -321,7 +329,7 @@
     </xsl:template>
     
     
-    <!--Template für die Verarbeitung von Feld 245 und 240-->
+    <!--Template für die Verarbeitung von Feld 245 und 246-->
     <xsl:template name="title">
         <xsl:variable name="title" select="marc:subfield[@code='a']/text()"/>
         <xsl:element name="{local-name()}">
@@ -329,8 +337,8 @@
             <xsl:attribute name="ind1">
                 
                 <xsl:choose>
-                    <!-- Immer ind1=1 bei Feld 240 und 246 -->
-                    <xsl:when test="matches(@tag, '24[06]')">
+                    <!-- Immer ind1=1 bei Feld 246 -->
+                    <xsl:when test="matches(@tag, '246')">
                         <xsl:value-of select="'1'"/>
                     </xsl:when>
                     
@@ -359,7 +367,7 @@
                         <xsl:value-of select="@ind2"/>
                     </xsl:when>
                     
-                    <!-- Nonfiling characters bei 240, 245-->
+                    <!-- Nonfiling characters bei Feld 245-->
                     <xsl:otherwise>
                         <xsl:choose>
                             <xsl:when test="starts-with($title, '&lt;')">
@@ -385,42 +393,10 @@
                 </xsl:choose>
             </xsl:attribute>    
         
-            <!--Unterfelder $b aneinanderfügen-->
-            <xsl:variable name="titleb">
-                <xsl:for-each select="marc:subfield">
-                    <xsl:if test="matches(@code, 'b')">
-                        <xsl:value-of select="concat(./text(), ' : ')"/>
-                    </xsl:if>
-                </xsl:for-each>
-            </xsl:variable>
-            
-            <!--Unterfelder $i aneinanderfügen-->
-            <xsl:variable name="titlei">
-                <xsl:for-each select="marc:subfield">
-                    <xsl:if test="matches(@code, 'i')">
-                        <xsl:value-of select="concat(' ; ', ./text())"/>
-                    </xsl:if>
-                </xsl:for-each>
-            </xsl:variable>
-            
-            <!--Unterfelder $j aneinanderfügen-->
-            <xsl:variable name="titlej">
-                <xsl:for-each select="marc:subfield">
-                    <xsl:if test="matches(@code, 'j')">
-                        <xsl:value-of select="concat('. ', ./text())"/>
-                    </xsl:if>
-                </xsl:for-each>
-            </xsl:variable>
-            
-            <!--Unterfelder $bij aneinanderfügen-->
-            <xsl:variable name="titlebij">
-                <xsl:value-of select="replace(concat(replace($titleb, ' : $' ,''), $titlei, $titlej), '^( ; |\. )', '')"/>
-            </xsl:variable>
-    
             <xsl:for-each select="marc:subfield">
                 <xsl:choose>
                     <!--Bei folgenden Unterfeldern sollen die spitzen Klammern rausgenommen werden-->
-                    <xsl:when test="matches(@code, 'a|d|p')">
+                    <xsl:when test="matches(@code, 'a|p')">
                         <xsl:element name="{local-name()}">
                             <xsl:for-each select="@*">
                                 <xsl:copy-of select="."/>
@@ -428,9 +404,6 @@
                             </xsl:for-each>
                         </xsl:element>
                     </xsl:when>
-
-                    <!-- Unterfelder $i und $j sind integriert in $b und werden gelöscht-->
-                    <xsl:when test="matches(@code, 'b|i|j')"/>
 
                     <!-- GND-Nr. in $0 -->
                     <xsl:when test="@code='1'">
@@ -451,14 +424,6 @@
                     </xsl:otherwise>
                 </xsl:choose>
             </xsl:for-each>
-
-            <!-- Neu konstruiertes Unterfeld $b schreiben, falls nicht leer  -->
-            <xsl:if test="$titlebij != ''">
-                <xsl:element name="subfield">
-                    <xsl:attribute name="code" select="'b'"/>
-                    <xsl:value-of select="$titlebij"/>
-                </xsl:element>
-            </xsl:if>
 
         </xsl:element>
     </xsl:template>
@@ -494,6 +459,77 @@
 
     <!--Template für die Verarbeitung von Fussnoten-->
     <xsl:template name="footnotes">
+        <!--Für die lokale Fussnotenfelder soll ein Text vor den Feldinhalt gestellt werden-->
+        <xsl:variable name="f500a">
+            <xsl:choose>
+                <xsl:when test="@tag='592'">
+                    <xsl:for-each select="marc:subfield">
+                        <xsl:if test="matches(@code, '3')">
+                            <xsl:value-of select="concat('. (', . , ')')"/>
+                        </xsl:if>
+                        <xsl:if test="matches(@code, 'a')">
+                            <xsl:value-of select="concat('. Beschreibstoff: ', .)"/>
+                        </xsl:if>
+                        <xsl:if test="matches(@code, 'b')">
+                            <xsl:value-of select="concat('. Lagen: ', .)"/>
+                        </xsl:if>
+                        <xsl:if test="matches(@code, 'c')">
+                            <xsl:value-of select="concat('. Zählungen: ', .)"/>
+                        </xsl:if>
+                    </xsl:for-each>
+                </xsl:when>
+                <xsl:when test="@tag='593'">
+                    <xsl:for-each select="marc:subfield">
+                        <xsl:if test="matches(@code, '3')">
+                            <xsl:value-of select="concat('. (', . , ')')"/>
+                        </xsl:if>
+                        <xsl:if test="matches(@code, 'a')">
+                            <xsl:value-of select="concat('. Rubrifizierungen: ', .)"/>
+                        </xsl:if>
+                        <xsl:if test="matches(@code, 'b')">
+                           <xsl:value-of select="concat('. Initialen: ', .)"/>
+                       </xsl:if>
+                       <xsl:if test="matches(@code, 'c')">
+                           <xsl:value-of select="concat('. Miniaturen/Zeichnungen: ', .)"/>
+                       </xsl:if>
+                       <xsl:if test="matches(@code, 'd')">
+                           <xsl:value-of select="concat('. Einrichtung: ', .)"/>
+                       </xsl:if>
+                       <xsl:if test="matches(@code, 'e')">
+                           <xsl:value-of select="concat('. Schrift: ', .)"/>
+                       </xsl:if>
+                       <xsl:if test="matches(@code, 'f')">
+                           <xsl:value-of select="concat('. Zusätze: ', .)"/>
+                       </xsl:if>
+                   </xsl:for-each>
+               </xsl:when>
+           
+               <xsl:when test="@tag='594'">
+                    <xsl:for-each select="marc:subfield">
+                        <xsl:if test="matches(@code, '3')">
+                            <xsl:value-of select="concat('. (', . , ')')"/>
+                        </xsl:if>
+                       <xsl:if test="matches(@code, 'a')">
+                           <xsl:value-of select="concat('. Musik: ', .)"/>
+                       </xsl:if>
+                   </xsl:for-each>
+               </xsl:when>
+            
+                <!-- Wenn es ein reguläres Feld 500 ist, einfach kopieren-->
+                <xsl:otherwise>
+                    <xsl:value-of select="marc:subfield[@code='a']/text()"/>
+                </xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
+        
+        <xsl:variable name="f500a2">
+            <xsl:value-of select='replace($f500a, "^\. ", "")'/>
+        </xsl:variable>
+        
+        <xsl:variable name="f500a3">
+            <xsl:value-of select='replace($f500a2, "\.\. ", ". ")'/>
+        </xsl:variable>
+
         <xsl:element name="{local-name()}">
             <xsl:attribute name="tag" select="'500'"/>
             <xsl:attribute name="ind1">
@@ -504,84 +540,9 @@
             </xsl:attribute>
             <xsl:element name="subfield">
                 <xsl:attribute name="code" select="'a'"/>
-                
-                <!--Für die Spezialindikatoren soll ein Text
-                vor den Feldinhalt gestellt werden-->
-                <xsl:choose>
-                    <xsl:when test="@ind1='A'">
-                        <xsl:value-of select="concat('Begleitmaterial: ', marc:subfield[@code='a']/text())"/>
-                    </xsl:when>
-                    <xsl:when test="@ind1='B'">
-                        <xsl:value-of select="concat('Besitzgeschichte: ', marc:subfield[@code='a']/text())"/>
-                    </xsl:when>
-                    <xsl:when test="@ind1='C' and @ind2='A'">
-                        <xsl:value-of select="concat('Wasserzeichen: ', 
-                            marc:subfield[@code='a']/text())"/>
-                    </xsl:when>
-                    <xsl:when test="@ind1='C' and @ind2='B'">
-                        <xsl:value-of select="concat('Lagen: ', 
-                            marc:subfield[@code='a']/text())"/>
-                    </xsl:when>
-                    <xsl:when test="@ind1='C' and @ind2='C'">
-                        <xsl:value-of select="concat('Paginierung: ', 
-                            marc:subfield[@code='a']/text())"/>
-                    </xsl:when>
-                    <xsl:when test="@ind1='D' and @ind2='A'">
-                        <xsl:value-of select="concat('Überschriften: ', 
-                            marc:subfield[@code='a']/text())"/>
-                    </xsl:when>
-                    <xsl:when test="@ind1='D' and @ind2='B'">
-                        <xsl:value-of select="concat('Initialen: ', 
-                            marc:subfield[@code='a']/text())"/>
-                    </xsl:when>
-                    <xsl:when test="@ind1='D' and @ind2='C'">
-                        <xsl:value-of select="concat('Miniaturen: ', 
-                            marc:subfield[@code='a']/text())"/>
-                    </xsl:when>
-                    
-                    <!--Unterfeld b soll, wenn vorhanden, an $a angehängt werden-->
-                    <xsl:when test="@ind1='L'">
-                        <xsl:choose>
-                            <xsl:when test="marc:subfield[@code='b']">
-                                
-                                <!--Wenn der Text in $a mit einem Punkt endet,
-                                muss kein Komma angehängt werden-->
-                                <xsl:choose>
-                                    <xsl:when test="ends-with(marc:subfield[@code='a']/text(), '.')">
-                                        <xsl:value-of select="concat('Einrichtung: ', marc:subfield[@code='a']/text(), 
-                                            ' Schrift: ', marc:subfield[@code='b']/text())"/>
-                                    </xsl:when>
-                                    <xsl:otherwise>
-                                        <xsl:value-of select="concat('Einrichtung: ', marc:subfield[@code='a']/text(), 
-                                            ', Schrift: ', marc:subfield[@code='b']/text())"/>
-                                    </xsl:otherwise>
-                                </xsl:choose>
-                                
-                            </xsl:when>
-                            <xsl:otherwise>
-                                <xsl:value-of select="concat('Einrichtung: ', marc:subfield[@code='a']/text())"/>
-                            </xsl:otherwise>
-                        </xsl:choose>                        
-                    </xsl:when>
-                    
-                    <xsl:when test="@ind1='M'">
-                        <xsl:value-of select="concat('Musik: ', marc:subfield[@code='a']/text())"/>
-                    </xsl:when>
-                    <xsl:when test="@ind1='O'">
-                        <xsl:value-of select="concat('Entstehung: ', marc:subfield[@code='a']/text())"/>
-                    </xsl:when>
-                    <xsl:when test="@ind1='Z'">
-                        <xsl:value-of select="concat('Zusätze zum Text: ', marc:subfield[@code='a']/text())"/>
-                    </xsl:when>
-                    
-                    <!--Wenn es ein reguläres Feld 500 ist,
-                    einfach kopieren-->
-                    <xsl:otherwise>
-                        <xsl:value-of select="marc:subfield[@code='a']/text()"/>
-                    </xsl:otherwise>
-                </xsl:choose>
+                <xsl:value-of select = "$f500a3"/>
             </xsl:element>
-            
+                
             <!--Unterfeld $3, falls vorhanden, kopieren-->
             <xsl:if test="marc:subfield[@code='3']">
                 <xsl:element name="subfield">
@@ -591,7 +552,6 @@
             </xsl:if>
         </xsl:element>
     </xsl:template>
-    
     
     <!--Template für Feld 505-->
     <xsl:template name="title_505">
@@ -630,9 +590,7 @@
                         <xsl:choose>
                             <xsl:when test="matches(@code, 'g|t|r|u|6|8')">
                                 <xsl:choose>
-                                    <!--Bei Unterfeld t sollen die spitzen                    
-                    Klammern rausgenommen werden.
-                    Keine Wegsortierung von Artikeln?-->
+                                    <!--Bei Unterfeld t sollen die spitzen Klammern rausgenommen werden. Keine Wegsortierung von Artikeln?-->
                                     <xsl:when test="@code='t'">
 					<xsl:element name="{local-name()}">
                                             <xsl:attribute name="code" select="'t'"/>
@@ -678,6 +636,36 @@
                </xsl:element>
            </xsl:for-each>
        </xsl:element>
+   </xsl:template>
+  
+   <!--Template für die Erstellung des Copyright-Hinweises in Feld 900--> 
+   <xsl:template name="copyright">
+       <xsl:choose>  
+            <xsl:when test="contains(marc:subfield[@code='l']/text(), 'CC-BY')">
+                <xsl:element name="datafield">
+                    <xsl:attribute name="tag" select="'900'"/>
+                    <xsl:attribute name="ind1" select="' '"/>
+                    <xsl:attribute name="ind2" select="'7'"/>
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'a'"/>
+                        <xsl:text>Metadata rights reserved</xsl:text>
+                    </xsl:element>              
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'b'"/>
+                        <xsl:text>CC-BY</xsl:text>
+                    </xsl:element>
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'u'"/>
+                        <xsl:text>http://creativecommons.org/licences/by/4.0</xsl:text>
+                    </xsl:element>
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'2'"/>
+                        <xsl:text>han</xsl:text>
+                    </xsl:element>
+                </xsl:element>
+           </xsl:when>
+           <xsl:otherwise/>
+       </xsl:choose>
    </xsl:template>
     
    <!--Template für die Erstellung der Felder 
@@ -1813,6 +1801,9 @@
                             <xsl:when test="$inst_code='Solothurn ZB'">
                                 <xsl:text>A150</xsl:text>
                             </xsl:when>
+                            <xsl:when test="$inst_code='Zofingen SB'">
+                                <xsl:text>SBZ</xsl:text>
+                            </xsl:when>
                             <xsl:otherwise/>
                         </xsl:choose>
                     </xsl:element>
@@ -1855,6 +1846,9 @@
                             </xsl:when>
                             <xsl:when test="$inst_code='Solothurn ZB'">
                                 <xsl:text>A150</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Zofingen SB'">
+                                <xsl:text>SBZ</xsl:text>
                             </xsl:when>
                             <xsl:otherwise/>
                         </xsl:choose>
