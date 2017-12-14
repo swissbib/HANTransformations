@@ -141,12 +141,14 @@
                     <xsl:call-template name="acquisition"/>
                 </xsl:when>  
                 <xsl:when test="@tag='542'">
+                    <!-- Einkommentieren wenn CC-Vermerk in Feld 990 geklärt
                     <xsl:choose>
                         <xsl:when test="@ind2='1'">
                             <xsl:call-template name="copyright"/>
                         </xsl:when>
                         <xsl:otherwise/>
                     </xsl:choose>
+                    -->
                 </xsl:when>
                 <xsl:when test="@tag='583'"/>
                 <xsl:when test="@tag='596'"/> 
