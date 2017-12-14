@@ -462,6 +462,9 @@
             <xsl:choose>
                 <xsl:when test="@tag='592'">
                     <xsl:for-each select="marc:subfield">
+                        <xsl:if test="matches(@code, '3')">
+                            <xsl:value-of select="concat('. (', . , ')')"/>
+                        </xsl:if>
                         <xsl:if test="matches(@code, 'a')">
                             <xsl:value-of select="concat('. Beschreibstoff: ', .)"/>
                         </xsl:if>
@@ -475,6 +478,9 @@
                 </xsl:when>
                 <xsl:when test="@tag='593'">
                     <xsl:for-each select="marc:subfield">
+                        <xsl:if test="matches(@code, '3')">
+                            <xsl:value-of select="concat('. (', . , ')')"/>
+                        </xsl:if>
                         <xsl:if test="matches(@code, 'a')">
                             <xsl:value-of select="concat('. Rubrifizierungen: ', .)"/>
                         </xsl:if>
@@ -498,6 +504,9 @@
            
                <xsl:when test="@tag='594'">
                     <xsl:for-each select="marc:subfield">
+                        <xsl:if test="matches(@code, '3')">
+                            <xsl:value-of select="concat('. (', . , ')')"/>
+                        </xsl:if>
                        <xsl:if test="matches(@code, 'a')">
                            <xsl:value-of select="concat('. Musik: ', .)"/>
                        </xsl:if>
