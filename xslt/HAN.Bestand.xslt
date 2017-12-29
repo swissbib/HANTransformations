@@ -141,14 +141,12 @@
                     <xsl:call-template name="acquisition"/>
                 </xsl:when>  
                 <xsl:when test="@tag='542'">
-                    <!-- Einkommentieren wenn CC-Vermerk in Feld 990 geklärt
                     <xsl:choose>
                         <xsl:when test="@ind2='1'">
                             <xsl:call-template name="copyright"/>
                         </xsl:when>
                         <xsl:otherwise/>
                     </xsl:choose>
-                    -->
                 </xsl:when>
                 <xsl:when test="@tag='583'"/>
                 <xsl:when test="@tag='596'"/> 
@@ -657,6 +655,25 @@
                     <xsl:element name="subfield">
                         <xsl:attribute name="code" select="'u'"/>
                         <xsl:text>http://creativecommons.org/licences/by/4.0</xsl:text>
+                    </xsl:element>
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'2'"/>
+                        <xsl:text>han</xsl:text>
+                    </xsl:element>
+                </xsl:element>
+           </xsl:when>
+           <xsl:when test="contains(marc:subfield[@code='l']/text(), 'CC0')">
+                <xsl:element name="datafield">
+                    <xsl:attribute name="tag" select="'900'"/>
+                    <xsl:attribute name="ind1" select="' '"/>
+                    <xsl:attribute name="ind2" select="'7'"/>
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'b'"/>
+                        <xsl:text>CC0</xsl:text>
+                    </xsl:element>
+                    <xsl:element name="subfield">
+                        <xsl:attribute name="code" select="'u'"/>
+                        <xsl:text>http://creativecommons.org/publicdomain/zero/1.0</xsl:text>
                     </xsl:element>
                     <xsl:element name="subfield">
                         <xsl:attribute name="code" select="'2'"/>
