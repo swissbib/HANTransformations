@@ -43,6 +43,6 @@ if [ "$DO_UPLOAD" == "1" ]; then
 fi
 
 if [ "$DO_EMAIL" == "1" ]; then
-    cat $LOG | mailx -a "From:basil.marti@unibas.ch" -s "Logfile: HAN-Daten fuer swissbib vom $DATE generiert" $MAIL_EDV
-    cat $INFOMAIL | mailx -a "From:basil.marti@unibas.ch" -s "Infomail: HAN-Daten fuer swissbib vom $DATE generiert" $MAIL_HAN
+    cat $LOG | mailx -a "From:aleph-ub@unibas.ch" -s "Logfile: HAN-Daten fuer swissbib vom $DATE generiert" $MAIL_EDV
+    cat $INFOMAIL | mailx -a "From:aleph-ub@unibas.ch" -s "Infomail: HAN-Daten fuer swissbib vom $DATE generiert" $MAIL_HAN
 fi
