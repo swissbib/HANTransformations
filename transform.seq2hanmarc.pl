@@ -31,7 +31,7 @@ my $exporter1 = Catmandu::Exporter::MARC->new(file => $ARGV[1], type => "XML", p
 my $exporter2 = Catmandu::Exporter::MARC->new(file => $ARGV[2], type => "XML", pretty => '1');
 
 # Log-file for not valid institutions in 852$a
-my $logfile = './institution_notvalid.log';
+my $logfile = '/opt/scripts/HANTransformations/institution_notvalid.log';
 open(my $log, '>:encoding(UTF-8)', $logfile) or die "Could not open file '$logfile' $!";
 
 # Hashes for storing data
