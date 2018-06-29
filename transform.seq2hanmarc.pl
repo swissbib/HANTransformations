@@ -128,7 +128,7 @@ $importer2->each(sub {
 
     # Remove records with hide_this codes or specific archival levels 
     unless (( defined $f909f{$sysnum} && $f909f{$sysnum}  =~ /hide\_this/) ||( defined $f351c{$sysnum} && $f351c{$sysnum} =~ /(Hauptabteilung|Abteilung)/)) {
-        if ($f852a{$sysnum} =~ /(^Basel UB$|^Basel UB Wirtschaft - SWA$|^Solothurn ZB$|^Bern Gosteli-Archiv$|^Bern UB Medizingeschichte: Rorschach-Archiv$|^Bern UB Schweizerische Osteuropabibliothek$|^Bern UB Archives REBUS$|)/) {
+        if ($f852a{$sysnum} =~ /(^Basel UB$|^Basel UB Wirtschaft - SWA$|^Solothurn ZB$|^Bern Gosteli-Archiv$|^Bern UB Medizingeschichte: Rorschach-Archiv$|^Bern UB Schweizerische Osteuropabibliothek$|^Bern UB Archives REBUS$)/) {
             # Add records for swissbib orange
             $exporter2->add($data);
             $orange += 1;
