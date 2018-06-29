@@ -128,17 +128,19 @@ $importer2->each(sub {
 
     # Remove records with hide_this codes or specific archival levels 
     unless (( defined $f909f{$sysnum} && $f909f{$sysnum}  =~ /hide\_this/) ||( defined $f351c{$sysnum} && $f351c{$sysnum} =~ /(Hauptabteilung|Abteilung)/)) {
-        if ($f852a{$sysnum} =~ /(^Basel UB$|^Basel UB Wirtschaft - SWA$|^Solothurn ZB$|^Bern Gosteli-Archiv$|^Bern UB Medizingeschichte: Rorschach-Archiv$|^Bern UB Schweizerische Osteuropabibliothek$|^Bern UB Archives REBUS$)/) {
+        if ($f852a{$sysnum} =~ /(^Basel UB$|^Basel UB Wirtschaft - SWA$|^Solothurn ZB$|^Bern Gosteli-Archiv$|^Bern UB Medizingeschichte: Rorschach-Archiv$|^Bern UB Schweizerische Osteuropabibliothek$|^Bern UB Archives REBUS$|)/) {
             # Add records for swissbib orange
             $exporter2->add($data);
             $orange += 1;
             $all += 1;
-        } elsif ($f852a{$sysnum} =~ /(^KB Appenzell Ausserrhoden$|^KB Thurgau$|^Luzern ZHB$|^St. Gallen KB Vadiana$|^St. Gallen Stiftsbibliothek$|^Zofingen SB$)/) {
+        } elsif ($f852a{$sysnum} =~ /(^KB Appenzell Ausserrhoden$|^KB Thurgau$|^Luzern ZHB$|^St. Gallen KB Vadiana$|^St. Gallen Stiftsbibliothek$|^Zofingen SB$|^KB Aargau$)/) {
             # Add records for swissbib green (everything except orange)
             $exporter1->add($data);
             $gruen += 1;
             $all += 1;
         } else {
+            # Stift Beromünster ist eine gültige HAN-Institution, soll aber nicht nach swissbib (Stand 16.11.2017)
+            # Bern UB Bibliothek Münstergasse ist eine gültige HAN-Institution, Export nach swissbib ist in Abklärung (Stand 20.03.2018)
             print $log "Not a HAN-Institution: $f852a{$sysnum} ($sysnum) \n";
         }
     }
