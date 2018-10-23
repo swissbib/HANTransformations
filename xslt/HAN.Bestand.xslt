@@ -856,6 +856,10 @@
               <xsl:attribute name="code" select="'F'" />
               <xsl:text>FREE</xsl:text>
             </xsl:element>
+	    <xsl:element name="subfield">
+              <xsl:attribute name="code" select="'b'" />
+              <xsl:text>FREE</xsl:text>
+            </xsl:element>
             <xsl:element name="subfield">
               <xsl:attribute name="code" select="'c'" />
               <xsl:text>OL</xsl:text>
