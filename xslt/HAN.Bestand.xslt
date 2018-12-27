@@ -137,6 +137,9 @@
                 <xsl:when test="@tag='505'">
                    <xsl:call-template name="title_505"/>
                 </xsl:when>
+                <xsl:when test="@tag='540'">
+                    <xsl:call-template name="reproduction"/>
+                </xsl:when>
                 <xsl:when test="@tag='541'">
                     <xsl:call-template name="acquisition"/>
                 </xsl:when>
@@ -620,8 +623,27 @@
 
     </xsl:template>
 
+   <!--Template für die Erstellung des Feld 540.
+   Der Autorisierter Benutzer in $d soll nicht kopiert
+   werden.-->
+   <xsl:template name="reproduction">
+       <xsl:element name="datafield">
+           <xsl:attribute name="tag" select="'540'"/>
+           <xsl:attribute name="ind1" select="' '"/>
+           <xsl:attribute name="ind2" select="' '"/>
+           <xsl:for-each select="marc:subfield[@code != 'd']">
+               <xsl:element name="{local-name()}">
+                   <xsl:for-each select="@*">
+                       <xsl:copy-of select="."/>
+                       <xsl:value-of select="../text()"/>
+                   </xsl:for-each>
+               </xsl:element>
+           </xsl:for-each>
+       </xsl:element>
+   </xsl:template>
+   
    <!--Template für die Erstellung des Feld 541.
-   Der Kaufpreis in $h soll nicht kopiert
+   Der Kaufpreis in $h und Vorbesierz in $b sollen nicht kopiert
    werden.-->
    <xsl:template name="acquisition">
        <xsl:element name="datafield">
