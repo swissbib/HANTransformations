@@ -95,7 +95,8 @@ my $orange = 0;
 $importer2->each(sub {
     my $data = $_[0];
     
-    # Insert system number in field 001
+    # Insert system number in field 001 (first remove any existing 001 fields as this field is not repeatable)
+    $data = marc_remove($data, '001');
     my $sysnum = $data->{'_id'};
     $data = marc_add($data, '001', a => $sysnum);
 
@@ -128,7 +129,7 @@ $importer2->each(sub {
 
     # Remove records with hide_this codes or specific archival levels 
     unless (( defined $f909f{$sysnum} && $f909f{$sysnum}  =~ /hide\_this/) ||( defined $f351c{$sysnum} && $f351c{$sysnum} =~ /(Hauptabteilung|Abteilung)/)) {
-        if ($f852a{$sysnum} =~ /(^Basel UB$|^Basel UB Wirtschaft - SWA$|^Solothurn ZB$|^Bern Gosteli-Archiv$|^Bern UB Medizingeschichte: Rorschach-Archiv$|^Bern UB Schweizerische Osteuropabibliothek$|^Bern UB Archives REBUS$)/) {
+        if ($f852a{$sysnum} =~ /(^Basel UB$|^Basel UB Wirtschaft - SWA$|^Solothurn ZB$|^Bern Gosteli-Archiv$|^Bern UB Medizingeschichte: Rorschach-Archiv$|^Bern UB Schweizerische Osteuropabibliothek$|^Bern UB Archives REBUS$|^Bern UB Bibliothek Münstergasse$)/) {
             # Add records for swissbib orange
             $exporter2->add($data);
             $orange += 1;
@@ -140,7 +141,6 @@ $importer2->each(sub {
             $all += 1;
         } else {
             # Stift Beromünster ist eine gültige HAN-Institution, soll aber nicht nach swissbib (Stand 16.11.2017)
-            # Bern UB Bibliothek Münstergasse ist eine gültige HAN-Institution, Export nach swissbib ist in Abklärung (Stand 20.03.2018)
             print $log "Not a HAN-Institution: $f852a{$sysnum} ($sysnum) \n";
         }
     }

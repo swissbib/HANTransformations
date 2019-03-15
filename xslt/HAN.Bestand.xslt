@@ -1842,11 +1842,14 @@
                             <xsl:when test="$inst_code='Bern UB Medizingeschichte: Rorschach-Archiv'">
                                 <xsl:text>HAN001</xsl:text>
                             </xsl:when>
-                            <xsl:when test="$inst_code='Bern UB Schweizerische Osteuropabibliothek'">
-                                <xsl:text>B415</xsl:text>
-                            </xsl:when>
                             <xsl:when test="$inst_code='Bern UB Archives REBUS'">
                                 <xsl:text>B400</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Bern UB Bibliothek Münstergasse'">
+                                <xsl:text>B404</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Bern UB Schweizerische Osteuropabibliothek'">
+                                <xsl:text>B415</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='Luzern ZHB'">
                                 <xsl:text>LUZHB</xsl:text>
@@ -1893,6 +1896,9 @@
                             </xsl:when>
                             <xsl:when test="$inst_code='Bern UB Archives REBUS'">
                                 <xsl:text>B400</xsl:text>
+                            </xsl:when>
+                            <xsl:when test="$inst_code='Bern UB Bibliothek Münstergasse'">
+                                <xsl:text>B404</xsl:text>
                             </xsl:when>
                             <xsl:when test="$inst_code='Bern UB Schweizerische Osteuropabibliothek'">
                                 <xsl:text>B415</xsl:text>
