@@ -1423,14 +1423,33 @@
 
                     <!-\-Wenn Sammlung, aber keine Briefe-\->
                     <xsl:otherwise>-->
-                        <xsl:variable name="specific" select="'CL010000'"/>
+                        <xsl:variable name="spec_2" select="'00'"/>
                         <xsl:variable name="generic" select="'XL010000'"/>
                         <xsl:variable name="hierarchy" select="'XL010000'"/>
-                        <xsl:call-template name="format_898">
-                            <xsl:with-param name="specific" select="$specific"/>
-                            <xsl:with-param name="generic" select="$generic"/>
-                            <xsl:with-param name="hierarchy" select="$hierarchy"/>
-                        </xsl:call-template>
+                        
+                        <xsl:choose>
+                            <!--Wenn online-->
+                            <xsl:when test="$format_side=
+                                'CF Elektron. Daten Fernzugriff=Fichier online'">
+                                <xsl:variable name="spec_3" select="'53'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="$hierarchy"/>
+                                </xsl:call-template>
+                            </xsl:when>
+                            
+                            <!--Wenn nicht online-->
+                            <xsl:otherwise>
+                                <xsl:variable name="spec_3" select="'00'"/>
+                                <xsl:call-template name="format_898">
+                                    <xsl:with-param name="specific" select="concat($spec_1, $spec_2, $spec_3)"/>
+                                    <xsl:with-param name="generic" select="$generic"/>
+                                    <xsl:with-param name="hierarchy" select="$hierarchy"/>
+                                </xsl:call-template>
+                            </xsl:otherwise>
+                        </xsl:choose>
+
                     <!--</xsl:otherwise>-->
                 <!--</xsl:choose>   -->
             </xsl:when>
