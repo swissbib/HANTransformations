@@ -35,11 +35,10 @@ fi
 if [ "$DO_FINISH" == "1" ]; then
     $BASEDIR/transform.into.1.line.sh $BASEDIR &>> $LOG
 fi
-
 if [ "$DO_UPLOAD" == "1" ]; then
     echo "Uploading files to swissbib-Server" >> $LOG
-    scp $BASEDIR/out.swissbib-MARC-1line/gruen_marcxml.format.xml swissbib@sb-us9.swissbib.unibas.ch:/swissbib_index/solrDocumentProcessing/FrequentInitialPreProcessing/data/format_archivaldata/ &>> $LOG
-    scp $BASEDIR/out.swissbib-MARC-1line/orange_marcxml.format.xml swissbib@sb-us9.swissbib.unibas.ch:/swissbib_index/solrDocumentProcessing/FrequentInitialPreProcessing/data/format_archivaldata/ &>> $LOG 
+    scp $BASEDIR/out.swissbib-MARC-1line/gruen_marcxml.format.xml swissbib@sb-dp1.swissbib.unibas.ch:/swissbib_index/solrDocumentProcessing/FrequentInitialPreProcessing/data/format_archivaldata/ &>> $LOG
+    scp $BASEDIR/out.swissbib-MARC-1line/orange_marcxml.format.xml swissbib@sb-dp1.swissbib.unibas.ch:/swissbib_index/solrDocumentProcessing/FrequentInitialPreProcessing/data/format_archivaldata/ &>> $LOG 
 fi
 
 if [ "$DO_EMAIL" == "1" ]; then
