@@ -99,7 +99,7 @@ $importer2->each(sub {
     $data = marc_remove($data, '001');
     my $sysnum = $data->{'_id'};
     $data = marc_add($data, '001', a => $sysnum);
-
+    
     # Replace all random characters in the 008 date fields with "u"
     unless (substr($f008{$sysnum},7,4)  =~ /[0-2][0-9]{3}/) { substr($f008{$sysnum},7,4) = 'uuuu' }
     unless (substr($f008{$sysnum},11,4) =~ /[0-2][0-9]{3}/) { substr($f008{$sysnum},11,4) = 'uuuu' } 
@@ -151,6 +151,7 @@ $exporter2->commit;
 
 print "All: " . $all . " Non-Orange: " . $gruen . " Orange: " . $orange . "\n";
 exit;
+
 # Subroutine for finding the system number of the topmost record of an archival hierarchy (iterates recursively through the whole hierarchy)
 sub addparents{
     my $sysnum = $_[0];
